@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { FaUserTie } from 'react-icons/fa';
-import myContext from '../../../context/data/useContext';
+import myContext from '../../../context/data/myContext';
 import Layout from '../../../components/layout/Layout';
-import DashboardTab from './DashBoardTab.jsx';
+import DashboardTab from './DashboardTab';
 
 function Dashboard() {
   const context = useContext(myContext);
@@ -21,11 +21,11 @@ function Dashboard() {
 
   return (
     <Layout>
-      <section className=" text-gray-600 body-font mt-10 mb-10">
+      <section className="text-gray-600 body-font mt-10 mb-10">
         <div className="container px-5 mx-auto mb-10">
-          <div className="flex items-center justify-center flex-wrap -m-4 text-center">
+          <div className="flex flex-wrap -m-4 text-center">
             {cards.map((card, index) => (
-              <div  key={index} className=" p-4 md:w-1/4 sm:w-1/2 w-full">
+              <div key={index} className="p-4 md:w-1/4 sm:w-1/2 w-full">
                 <div
                   className="border-2 hover:shadow-purple-600 shadow-[inset_0_0_10px_rgba(0,0,0,0.6)] bg-gray-100 border-gray-300 px-4 py-3 rounded-xl"
                   style={cardStyle}
