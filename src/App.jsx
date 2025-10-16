@@ -1,10 +1,9 @@
-import React from 'react'
 import {
   BrowserRouter as Router,
   Route,
   Routes,
   Navigate,
-} from "react-router-dom";
+} from 'react-router-dom';
 
 import Home from './pages/home/Home';
 import Order from './pages/order/Order';
@@ -17,9 +16,11 @@ import Signup from './pages/registration/Signup';
 import ProductInfo from './pages/productInfo/ProductInfo';
 import AddProduct from './pages/admin/page/AddProduct';
 import UpdateProduct from './pages/admin/page/UpdateProduct';
+import Wishlist from './pages/wishlist/Wishlist';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Allproducts from './pages/allproducts/Allproducts';
+
 function App() {
   return (
     <MyState>
@@ -27,6 +28,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/allproducts" element={<Allproducts />} />
+          <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/order" element={
             <ProtectedRoute>
               <Order />
@@ -38,51 +40,67 @@ function App() {
               <Dashboard />
             </ProtectedRouteForAdmin>
           } />
-          <Route path='/login' element={<Login/>} />
-          <Route path='/signup' element={<Signup/>} />
-          <Route path='/productinfo/:id' element={<ProductInfo/>} />
-          <Route path='/addproduct' element={
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/productinfo/:id" element={<ProductInfo />} />
+          <Route path="/addproduct" element={
             <ProtectedRouteForAdmin>
-              <AddProduct/>
+              <AddProduct />
             </ProtectedRouteForAdmin>
           } />
-          <Route path='/updateproduct' element={
+          <Route path="/updateproduct" element={
             <ProtectedRouteForAdmin>
-              <UpdateProduct/>
+              <UpdateProduct />
             </ProtectedRouteForAdmin>
           } />
-          <Route path="/*" element={<NoPage />} />
+          <Route path="*" element={<NoPage />} />
         </Routes>
-        <ToastContainer/>
+        <ToastContainer 
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
       </Router>
     </MyState>
-
-  )
+  );
 }
 
-export default App 
+export default App;
 
-// user 
-
-export const ProtectedRoute = ({children}) => {
-  const user = localStorage.getItem('user')
-  if(user){
-    return children
-  }else{
-    return <Navigate to={'/login'}/>
+// Protected Route for authenticated users
+export const ProtectedRoute = ({ children }) => {
+  const user = localStorage.getItem('user');
+  if (user) {
+    return children;
+  } else {
+    return <Navigate to="/login" />;
   }
-}
+};
 
-// admin 
-
-const ProtectedRouteForAdmin = ({children})=> {
-  const admin = JSON.parse(localStorage.getItem('user'))
-  
-  if(admin.user.email === 'skshamkaushal@gmail.com'){
-    return children
+// Protected Route for admin users
+const ProtectedRouteForAdmin = ({ children }) => {
+  try {
+    const user = localStorage.getItem('user');
+    if (!user) {
+      return <Navigate to="/login" />;
+    }
+    
+    const admin = JSON.parse(user);
+    
+    if (admin?.user?.email === 'skshamkaushal@gmail.com') {
+      return children;
+    } else {
+      return <Navigate to="/login" />;
+    }
+  } catch (error) {
+    // If parsing fails, redirect to login
+    return <Navigate to="/login" />;
   }
-  else{
-    return <Navigate to={'/login'}/>
-  }
-
-}
+};

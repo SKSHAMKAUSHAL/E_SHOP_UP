@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import Layout from '../../components/layout/Layout'
 import myContext from '../../context/data/myContext';
 import { useParams } from 'react-router';
@@ -7,25 +7,27 @@ import { doc, getDoc } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import { addToCart } from '../../redux/cartSlice';
 import { fireDB } from '../../fireabase/FirebaseConfig';
+import { FaHeart } from 'react-icons/fa';
 
 function ProductInfo() {
     const context = useContext(myContext);
-    const { loading, setLoading } = context;
+    const { setLoading, wishlist, getWishlistData, addToWishlistBackend, removeFromWishlistBackend } = context;
 
     const [products, setProducts] = useState('')
     const params = useParams()
-    // console.log(products.title)
+    
+    // Get user from localStorage
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const userId = user?.user?.uid;
 
     const getProductData = async () => {
         setLoading(true)
         try {
             const productTemp = await getDoc(doc(fireDB, "products", params.id))
-            // console.log(productTemp)
             setProducts(productTemp.data());
-            // console.log(productTemp.data())
             setLoading(false)
         } catch (error) {
-            console.log(error)
+            toast.error("Failed to load product")
             setLoading(false)
         }
     }
@@ -40,13 +42,39 @@ function ProductInfo() {
 
     const dispatch = useDispatch()
     const cartItems = useSelector((state) => state.cart)
-    // console.log(cartItems)
+
+    // Load wishlist on component mount
+    useEffect(() => {
+        if (userId) {
+            getWishlistData(userId);
+        }
+    }, [userId]);
 
     // add to cart
     const addCart = (products) => {
         dispatch(addToCart(products))
         toast.success('add to cart');
     }
+
+    // toggle wishlist
+    const toggleWishlist = () => {
+        if (!userId) {
+            toast.error('Please login to add to wishlist');
+            window.location.href = '/login';
+            return;
+        }
+
+        const isInWishlist = wishlist.some(item => item.productId === products.id);
+        
+        if (isInWishlist) {
+            const wishlistItem = wishlist.find(item => item.productId === products.id);
+            removeFromWishlistBackend(wishlistItem.id, userId);
+        } else {
+            addToWishlistBackend(products, userId);
+        }
+    }
+
+    const isInWishlist = wishlist.some(item => item.productId === products.id);
 
     useEffect(() => {
         localStorage.setItem('cart', JSON.stringify(cartItems));
@@ -175,14 +203,25 @@ function ProductInfo() {
                                 {products.description}
                             </p>
 
-                            <div className="flex">
+                            <div className="flex items-center gap-3">
                                 <span className="title-font font-medium text-2xl text-gray-900">
                                 ₹{products.price}
                                 </span>
-                                <button  onClick={()=>addCart(products)} className="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">
+                                <button  
+                                    onClick={()=>addCart(products)} 
+                                    className="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded transition-all duration-300 hover:scale-105"
+                                >
                                     Add To Cart
                                 </button>
-                                <button className="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 ml-4">
+                                <button 
+                                    onClick={toggleWishlist}
+                                    className={`rounded-full w-10 h-10 p-0 border-0 inline-flex items-center justify-center ml-2 transition-all duration-300 hover:scale-110 ${
+                                        isInWishlist ? 'bg-pink-500 text-white' : 'bg-gray-200 text-gray-500 hover:bg-pink-100'
+                                    }`}
+                                >
+                                    <FaHeart className="w-5 h-5" />
+                                </button>
+                                <button className="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 ml-2 hover:bg-gray-300 transition-all duration-300">
                                     <svg
                                         fill="currentColor"
                                         strokeLinecap="round"

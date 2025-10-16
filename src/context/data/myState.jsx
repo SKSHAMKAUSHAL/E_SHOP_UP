@@ -1,21 +1,34 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 import MyContext from './myContext'
 import { Timestamp, addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, orderBy, query, setDoc } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import { fireDB } from '../../fireabase/FirebaseConfig';
 
 function MyState(props) {
-  const [mode, setMode] = useState('light');
+  // Initialize mode from localStorage or default to 'light'
+  const [mode, setMode] = useState(() => {
+    const savedMode = localStorage.getItem('theme-mode');
+    return savedMode || 'light'; // Changed default to 'light'
+  });
   const [loading, setLoading] = useState(false);
+
+  // Apply theme on mount and mode change
+  useEffect(() => {
+    if (mode === 'dark') {
+      document.body.style.backgroundColor = 'rgb(15, 23, 42)'; // Updated to match color scheme
+    } else {
+      document.body.style.backgroundColor = '#f8fafc'; // Updated to match color scheme
+    }
+    // Save to localStorage whenever mode changes
+    localStorage.setItem('theme-mode', mode);
+  }, [mode]);
 
   const toggleMode = () => {
     if (mode === 'light') {
       setMode('dark');
-      document.body.style.backgroundColor = 'rgb(17, 24, 39)';
     }
     else {
       setMode('light');
-      document.body.style.backgroundColor = 'white';
     }
   }
 
@@ -50,7 +63,7 @@ function MyState(props) {
       getProductData()
       setLoading(false)
     } catch (error) {
-      console.log(error)
+      toast.error("Failed to add product")
       setLoading(false)
     }
     setProducts("")
@@ -64,8 +77,7 @@ function MyState(props) {
     try {
       const q = query(
         collection(fireDB, "products"),
-        orderBy("time"),
-        // limit(5)
+        orderBy("time")
       );
       const data = onSnapshot(q, (QuerySnapshot) => {
         let productsArray = [];
@@ -77,7 +89,7 @@ function MyState(props) {
       });
       return () => data;
     } catch (error) {
-      console.log(error)
+      toast.error("Failed to load products")
       setLoading(false)
     }
   }
@@ -96,8 +108,8 @@ function MyState(props) {
       setLoading(false)
       window.location.href = '/dashboard'
     } catch (error) {
+      toast.error("Failed to update product")
       setLoading(false)
-      console.log(error)
     }
     setProducts("")
   }
@@ -129,10 +141,9 @@ function MyState(props) {
         setLoading(false)
       });
       setOrder(ordersArray);
-      // console.log(ordersArray)
       setLoading(false);
     } catch (error) {
-      console.log(error)
+      toast.error("Failed to load orders")
       setLoading(false)
     }
   }
@@ -150,10 +161,9 @@ function MyState(props) {
         setLoading(false)
       });
       setUser(usersArray);
-      console.log(usersArray)
       setLoading(false);
     } catch (error) {
-      console.log(error)
+      toast.error("Failed to load users")
       setLoading(false)
     }
   }
@@ -167,7 +177,82 @@ function MyState(props) {
     getUserData();
   }, []);
 
-   const [searchkey, setSearchkey] = useState('')
+  // Wishlist Functions
+  const [wishlist, setWishlist] = useState([]);
+
+  // Get wishlist from Firebase
+  const getWishlistData = async (userId) => {
+    setLoading(true);
+    try {
+      const result = await getDocs(collection(fireDB, "wishlist"));
+      const wishlistArray = [];
+      result.forEach((doc) => {
+        const data = doc.data();
+        if (data.userId === userId) {
+          wishlistArray.push({ ...data, id: doc.id });
+        }
+      });
+      setWishlist(wishlistArray);
+      setLoading(false);
+    } catch (error) {
+      toast.error("Failed to load wishlist");
+      setLoading(false);
+    }
+  };
+
+  // Add to wishlist in Firebase
+  const addToWishlistBackend = async (product, userId) => {
+    setLoading(true);
+    try {
+      // Check if already exists
+      const result = await getDocs(collection(fireDB, "wishlist"));
+      let exists = false;
+      result.forEach((doc) => {
+        const data = doc.data();
+        if (data.userId === userId && data.productId === product.id) {
+          exists = true;
+        }
+      });
+
+      if (!exists) {
+        await addDoc(collection(fireDB, "wishlist"), {
+          userId: userId,
+          productId: product.id,
+          product: product,
+          time: Timestamp.now(),
+          date: new Date().toLocaleString("en-US", {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+          })
+        });
+        toast.success('Added to wishlist ❤️');
+        getWishlistData(userId);
+      } else {
+        toast.info('Already in wishlist');
+      }
+      setLoading(false);
+    } catch (error) {
+      toast.error('Failed to add to wishlist');
+      setLoading(false);
+    }
+  };
+
+  // Remove from wishlist in Firebase
+  const removeFromWishlistBackend = async (wishlistItemId, userId) => {
+    setLoading(true);
+    try {
+      await deleteDoc(doc(fireDB, "wishlist", wishlistItemId));
+      toast.info('Removed from wishlist');
+      getWishlistData(userId);
+      setLoading(false);
+    } catch (error) {
+      toast.error('Failed to remove from wishlist');
+      setLoading(false);
+    }
+  };
+
+  const [searchkey, setSearchkey] = useState('')
   const [filterType, setFilterType] = useState('')
   const [filterPrice, setFilterPrice] = useState('')
 
@@ -179,7 +264,8 @@ function MyState(props) {
       products, setProducts, addProduct, product,
       updateProduct,edithandle,deleteProduct,order,user,
       searchkey, setSearchkey,filterType, setFilterType,
-      filterPrice, setFilterPrice
+      filterPrice, setFilterPrice,
+      wishlist, getWishlistData, addToWishlistBackend, removeFromWishlistBackend
     }}>
       {props.children}
     </MyContext.Provider>
