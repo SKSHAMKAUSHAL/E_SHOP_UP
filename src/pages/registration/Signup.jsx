@@ -8,6 +8,7 @@ import { Timestamp, addDoc, collection } from 'firebase/firestore';
 import Loader from '../../components/loader/Loader';
 import { getThemeColors, getThemeShadow } from '../../utils/colorUtils';
 import Logo from '../../components/logo/Logo';
+import signupBgImage from '../../assets/giorgio-trovato-K62u25Jk6vo-unsplash.jpg';
 
 function Signup() {
     const [name, setName] = useState("");
@@ -59,7 +60,7 @@ function Signup() {
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
                 <img 
-                    src="/image3.jpg" 
+                    src={signupBgImage} 
                     alt="Signup Background"
                     className="w-full h-full object-cover"
                     style={{ filter: mode === 'dark' ? 'brightness(0.7)' : 'brightness(0.9)' }}
@@ -82,9 +83,9 @@ function Signup() {
                     border: `1px solid ${colors.border.main}`,
                 }}>
                 
-                {/* Logo Header */}
+                {/* Logo Header - Clickable to Home */}
                 <div className="text-center mb-8">
-                    <div className="flex justify-center mb-4">
+                    <div className="flex justify-center mb-4 cursor-pointer" onClick={() => navigate('/')}>
                         <Logo 
                             size="large" 
                             showText={true} 

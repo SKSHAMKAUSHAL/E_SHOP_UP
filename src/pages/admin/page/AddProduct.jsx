@@ -1,19 +1,22 @@
 import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import myContext from '../../../context/data/myContext';
 import { getThemeColors, getThemeShadow } from '../../../utils/colorUtils';
 import Logo from '../../../components/logo/Logo';
+import adminBgImage from '../../../assets/nordwood-themes-Nv4QHkTVEaI-unsplash.jpg';
 
 function AddProduct() {
     const context = useContext(myContext);
     const { products, setProducts, addProduct, mode } = context;
     const colors = getThemeColors(mode);
+    const navigate = useNavigate();
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4 relative">
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
                 <img 
-                    src="/image1.jpg" 
+                    src={adminBgImage} 
                     alt="Background"
                     className="w-full h-full object-cover"
                     style={{ filter: mode === 'dark' ? 'brightness(0.6)' : 'brightness(0.85)' }}
@@ -36,9 +39,9 @@ function AddProduct() {
                         border: `1px solid ${colors.border.main}`,
                     }}>
                     
-                    {/* Header with Logo */}
+                    {/* Header with Logo - Clickable to Home */}
                     <div className="text-center mb-8">
-                        <div className="flex justify-center mb-4">
+                        <div className="flex justify-center mb-4 cursor-pointer" onClick={() => navigate('/')}>
                             <Logo 
                                 size="medium" 
                                 showText={true} 

@@ -1,18 +1,22 @@
 import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import myContext from '../../../context/data/myContext';
 import { getThemeColors, getThemeShadow } from '../../../utils/colorUtils';
+import Logo from '../../../components/logo/Logo';
+import updateBgImage from '../../../assets/vitaly-gariev-1JnN9QhmTGU-unsplash.jpg';
 
 function UpdateProduct() {
     const context = useContext(myContext);
     const { products, setProducts, updateProduct, mode } = context;
     const colors = getThemeColors(mode);
+    const navigate = useNavigate();
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4 relative">
             {/* Background Image with Gradient Overlay */}
             <div className="absolute inset-0 z-0">
                 <img 
-                    src="/image1.jpg" 
+                    src={updateBgImage} 
                     alt="Background"
                     className="w-full h-full object-cover"
                     style={{ filter: mode === 'dark' ? 'brightness(0.7)' : 'brightness(0.9)' }}
@@ -36,17 +40,14 @@ function UpdateProduct() {
                         border: `1px solid ${colors.border.main}`,
                     }}>
                     
-                    {/* Icon Header */}
+                    {/* Logo and Header - Clickable to Home */}
                     <div className="flex flex-col items-center mb-8">
-                        <div 
-                            className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all duration-300"
-                            style={{
-                                backgroundColor: colors.secondary.main,
-                                boxShadow: `0 4px 14px 0 ${colors.secondary.main}60`,
-                            }}>
-                            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
+                        <div className="flex justify-center mb-4 cursor-pointer" onClick={() => navigate('/')}>
+                            <Logo 
+                                size="medium" 
+                                showText={true} 
+                                variant={mode === 'dark' ? 'white' : 'gradient'}
+                            />
                         </div>
                         <h1 
                             className='text-3xl font-bold mb-2'
