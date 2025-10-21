@@ -1,6 +1,7 @@
 import React from 'react'
 import Navbar from '../navbar/Navbar'
 import Footer from '../footer/Footer'
+import FloatingCart from '../cart/FloatingCart'
 
 function Layout({children}) {
   return (
@@ -10,6 +11,7 @@ function Layout({children}) {
             {children}
         </div>
         <Footer/>
+        <FloatingCart />
     </div>
   )
 }

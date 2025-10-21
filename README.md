@@ -189,5 +189,5 @@ Give a ⭐️ if this project helped you!
 ---
 
 <div align="center">
-Made with ❤️ by Sham Kaushal
+Made with ❤️ by Sksham Kaushal
 </div>
