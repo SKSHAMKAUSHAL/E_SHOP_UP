@@ -177,7 +177,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👨‍💻 Author
 
-**Sham Kaushal**
+**Sksham Kaushal**
 
 - GitHub: [@SKSHAMKAUSHAL](https://github.com/SKSHAMKAUSHAL)
 - Email: skshamkaushal@gmail.com
