@@ -55,18 +55,55 @@ function MyState(props) {
     if (products.title == null || products.price == null || products.imageUrl == null || products.category == null || products.description == null) {
       return toast.error('Please fill all fields')
     }
+
+    // Check for duplicate products
+    const duplicate = product.find(p => 
+      p.title.toLowerCase().trim() === products.title.toLowerCase().trim() &&
+      p.category.toLowerCase().trim() === products.category.toLowerCase().trim()
+    );
+
+    if (duplicate) {
+      return toast.error('Product already exists with this title and category!', {
+        position: "top-center",
+        autoClose: 3000,
+      });
+    }
+
     const productRef = collection(fireDB, "products")
     setLoading(true)
     try {
       await addDoc(productRef, products)
-      toast.success("Product Add successfully")
+      toast.success("Product added successfully! 🎉", {
+        position: "top-center",
+        autoClose: 2000,
+      })
       getProductData()
       setLoading(false)
+      // Reset products state
+      setProducts({
+        title: null,
+        price: null,
+        imageUrl: null,
+        category: null,
+        description: null,
+        time: Timestamp.now(),
+        date: new Date().toLocaleString(
+          "en-US",
+          {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+          }
+        )
+      })
     } catch (error) {
-      toast.error("Failed to add product")
+      console.error("Error adding product:", error);
+      toast.error("Failed to add product. Please try again.", {
+        position: "top-center",
+        autoClose: 3000,
+      })
       setLoading(false)
     }
-    setProducts("")
   }
 
   const [product, setProduct] = useState([]);
