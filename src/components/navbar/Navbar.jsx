@@ -43,16 +43,16 @@ function Navbar() {
         boxShadow: getThemeShadow(mode, 'lg'),
       }}>
       {/* Trust Banner */}
-      <div className="flex h-10 items-center justify-center px-4 text-sm font-medium transition-all duration-300"
+      <div className="flex h-8 sm:h-10 items-center justify-center px-2 sm:px-4 text-xs sm:text-sm font-medium transition-all duration-300"
         style={{
           background: mode === 'dark' 
             ? `linear-gradient(135deg, ${colors.secondary.main} 0%, ${colors.primary.main} 100%)`
             : `linear-gradient(135deg, ${colors.secondary.main} 0%, ${colors.primary.main} 100%)`,
           color: 'white'
         }}>
-        <FaShieldAlt className="mr-2" />
+        <FaShieldAlt className="mr-1 sm:mr-2 text-xs sm:text-base flex-shrink-0" />
         <span className="hidden sm:inline">100% Secure Shopping | </span>
-        Free Delivery on Orders Over ₹300
+        <span className="truncate">Free Delivery on Orders Over ₹300</span>
       </div>
       {/* Mobile menu */}
       <Transition.Root show={open} as={Fragment}>
@@ -207,7 +207,7 @@ function Navbar() {
               </button>
 
               {/* Logo */}
-              <div className="ml-4 flex lg:ml-0">
+              <div className="ml-2 sm:ml-4 flex lg:ml-0">
                 <Logo 
                   size="medium" 
                   showText={true} 
@@ -215,7 +215,7 @@ function Navbar() {
                 />
               </div>
 
-              <div className="ml-auto flex items-center">
+              <div className="ml-auto flex items-center gap-1 sm:gap-2">
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
 
                   <Link 
@@ -308,10 +308,10 @@ function Navbar() {
                 </div>
 
                 {/* Wishlist */}
-                <div className="ml-4 flow-root lg:ml-6">
+                <div className="flow-root">
                   <Link 
                     to={'/wishlist'} 
-                    className="group -m-2 flex items-center p-2 relative rounded-lg transition-all duration-300" 
+                    className="group -m-2 flex items-center p-2 relative rounded-lg transition-all duration-300 touch-manipulation" 
                     style={{ color: colors.text.primary }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = colors.surface.hover;
@@ -322,10 +322,10 @@ function Navbar() {
                       e.currentTarget.style.color = colors.text.primary;
                     }}
                   >
-                    <FaHeart className="w-5 h-5" />
+                    <FaHeart className="w-5 h-5 sm:w-6 sm:h-6" />
                     {wishlist.length > 0 && (
                       <span 
-                        className="ml-2 text-sm font-medium px-2 py-0.5 rounded-full"
+                        className="ml-1 sm:ml-2 text-xs sm:text-sm font-medium px-1.5 sm:px-2 py-0.5 rounded-full"
                         style={{ 
                           backgroundColor: colors.semantic.error,
                           color: 'white',
@@ -339,10 +339,10 @@ function Navbar() {
                 </div>
 
                 {/* Cart */}
-                <div className="ml-4 flow-root lg:ml-6">
+                <div className="flow-root">
                   <Link 
                     to={'/cart'} 
-                    className="group -m-2 flex items-center p-2 rounded-lg transition-all duration-300" 
+                    className="group -m-2 flex items-center p-2 rounded-lg transition-all duration-300 touch-manipulation" 
                     style={{ color: colors.text.primary }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = colors.surface.hover;
@@ -353,11 +353,11 @@ function Navbar() {
                       e.currentTarget.style.color = colors.text.primary;
                     }}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 sm:w-6 sm:h-6">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                     </svg>
                     <span 
-                      className="ml-2 text-sm font-medium px-2 py-0.5 rounded-full"
+                      className="ml-1 sm:ml-2 text-xs sm:text-sm font-medium px-1.5 sm:px-2 py-0.5 rounded-full"
                       style={{ 
                         backgroundColor: colors.primary.main,
                         color: 'white',

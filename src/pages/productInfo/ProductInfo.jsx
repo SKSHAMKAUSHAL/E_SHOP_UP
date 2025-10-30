@@ -7,18 +7,24 @@ import { doc, getDoc } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import { addToCart } from '../../redux/cartSlice';
 import { fireDB } from '../../fireabase/FirebaseConfig';
-import { FaHeart } from 'react-icons/fa';
+import { FaHeart, FaShoppingCart, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 function ProductInfo() {
     const context = useContext(myContext);
-    const { setLoading, wishlist, getWishlistData, addToWishlistBackend, removeFromWishlistBackend } = context;
+    const { setLoading, wishlist, getWishlistData, addToWishlistBackend, removeFromWishlistBackend, mode } = context;
 
     const [products, setProducts] = useState('')
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const params = useParams()
     
     // Get user from localStorage
     const user = JSON.parse(localStorage.getItem('user') || 'null');
     const userId = user?.user?.uid;
+
+    // Get product images
+    const productImages = products && products.images && Array.isArray(products.images) && products.images.length > 0 
+        ? products.images 
+        : products.imageUrl ? [products.imageUrl] : [];
 
     const getProductData = async () => {
         setLoading(true)
@@ -85,154 +91,234 @@ function ProductInfo() {
 
     return (
         <Layout>
-            <section className="text-gray-600 body-font overflow-hidden">
+            <section className="text-gray-600 body-font overflow-hidden" style={{ 
+                backgroundColor: mode === 'dark' ? 'rgb(15, 23, 42)' : 'white' 
+            }}>
                 <div className="container px-5 py-10 mx-auto">
                     {products && 
-                    <div className="lg:w-4/5 mx-auto flex flex-wrap">
-                        <img
-                            alt="ecommerce"
-                            className="lg:w-1/3 w-full lg:h-auto  object-cover object-center rounded"
-                            src={products.imageUrl}
-                        />
-                        <div className="lg:w-1/2 w-full lg:pl-10 lg:py-6 mt-6 lg:mt-0">
-                            <h2 className="text-sm title-font text-gray-500 tracking-widest">
-                                BRAND NAME
+                    <div className="lg:w-4/5 mx-auto flex flex-wrap gap-8">
+                        {/* Image Gallery Section */}
+                        <div className="lg:w-2/5 w-full">
+                            {/* Main Image */}
+                            <div className="relative mb-4 rounded-2xl overflow-hidden border-2 group" style={{
+                                borderColor: mode === 'dark' ? 'rgb(75 85 99)' : '#e5e7eb',
+                                backgroundColor: mode === 'dark' ? 'rgb(30, 41, 59)' : '#f8fafc'
+                            }}>
+                                <img
+                                    alt={products.title}
+                                    className="w-full max-h-[500px] md:max-h-[600px] object-contain transition-transform duration-300 group-hover:scale-105"
+                                    src={productImages[selectedImageIndex]}
+                                    loading="lazy"
+                                />
+                                
+                                {/* Navigation Arrows */}
+                                {productImages.length > 1 && (
+                                    <>
+                                        <button
+                                            onClick={() => setSelectedImageIndex((prev) => 
+                                                prev === 0 ? productImages.length - 1 : prev - 1
+                                            )}
+                                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
+                                        >
+                                            <FaChevronLeft size={20} />
+                                        </button>
+                                        <button
+                                            onClick={() => setSelectedImageIndex((prev) => 
+                                                (prev + 1) % productImages.length
+                                            )}
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
+                                        >
+                                            <FaChevronRight size={20} />
+                                        </button>
+                                        
+                                        {/* Image Counter */}
+                                        <div className="absolute bottom-4 right-4 bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-sm font-bold backdrop-blur-sm">
+                                            {selectedImageIndex + 1} / {productImages.length}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Thumbnail Gallery */}
+                            {productImages.length > 1 && (
+                                <div className="grid grid-cols-4 gap-2">
+                                    {productImages.map((img, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => setSelectedImageIndex(idx)}
+                                            className={`relative rounded-lg overflow-hidden border-2 transition-all duration-300 hover:scale-105 ${
+                                                idx === selectedImageIndex 
+                                                    ? 'border-pink-500 scale-105 shadow-lg' 
+                                                    : 'border-transparent'
+                                            }`}
+                                            style={{
+                                                borderColor: idx === selectedImageIndex ? '#ec4899' : (mode === 'dark' ? 'rgb(75 85 99)' : '#e5e7eb')
+                                            }}
+                                        >
+                                            <img
+                                                src={img}
+                                                alt={`Thumbnail ${idx + 1}`}
+                                                className="w-full h-20 object-cover"
+                                            />
+                                            {idx === selectedImageIndex && (
+                                                <div className="absolute inset-0 bg-pink-500 bg-opacity-20"></div>
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Product Details Section */}
+                        <div className="lg:w-1/2 w-full lg:py-6"
+                            style={{ color: mode === 'dark' ? 'white' : '#1f2937' }}
+                        >
+                            <h2 className="text-sm title-font tracking-widest mb-2 uppercase"
+                                style={{ color: mode === 'dark' ? '#9ca3af' : '#6b7280' }}
+                            >
+                                SHOP UP
                             </h2>
-                            <h1 className="text-gray-900 text-3xl title-font font-medium mb-1">
+                            <h1 className="text-4xl title-font font-bold mb-4"
+                                style={{ color: mode === 'dark' ? 'white' : '#1f2937' }}
+                            >
                                 {products.title}
                             </h1>
-                            <div className="flex mb-4">
-                                <span className="flex items-center">
-                                    <svg
-                                        fill="currentColor"
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        className="w-4 h-4 text-indigo-500"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                    </svg>
-                                    <svg
-                                        fill="currentColor"
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        className="w-4 h-4 text-indigo-500"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                    </svg>
-                                    <svg
-                                        fill="currentColor"
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        className="w-4 h-4 text-indigo-500"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                    </svg>
-                                    <svg
-                                        fill="currentColor"
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        className="w-4 h-4 text-indigo-500"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                    </svg>
-                                    <svg
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        className="w-4 h-4 text-indigo-500"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                    </svg>
-                                    <span className="text-gray-600 ml-3">4 Reviews</span>
-                                </span>
-                                <span className="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s">
-                                    <a className="text-gray-500">
+                            
+                            {/* Rating and Reviews */}
+                            <div className="flex items-center gap-4 mb-4 pb-4 border-b-2" style={{ 
+                                borderColor: mode === 'dark' ? 'rgb(75 85 99)' : '#e5e7eb' 
+                            }}>
+                                <div className="flex items-center gap-1">
+                                    {[...Array(5)].map((_, i) => (
                                         <svg
-                                            fill="currentColor"
+                                            key={i}
+                                            fill={i < 4 ? "currentColor" : "none"}
+                                            stroke="currentColor"
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
                                             strokeWidth={2}
-                                            className="w-5 h-5"
+                                            className="w-5 h-5 text-yellow-500"
                                             viewBox="0 0 24 24"
                                         >
-                                            <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                                         </svg>
-                                    </a>
-                                    <a className="text-gray-500">
-                                        <svg
-                                            fill="currentColor"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            className="w-5 h-5"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" />
-                                        </svg>
-                                    </a>
-                                    <a className="text-gray-500">
-                                        <svg
-                                            fill="currentColor"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            className="w-5 h-5"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
-                                        </svg>
-                                    </a>
+                                    ))}
+                                </div>
+                                <span className="text-sm font-semibold" style={{ color: mode === 'dark' ? '#9ca3af' : '#6b7280' }}>
+                                    4.5 (24 Reviews)
                                 </span>
                             </div>
-                            <p className="leading-relaxed border-b-2 mb-5 pb-5">
-                                {products.description}
-                            </p>
+                            
+                            {/* Description */}
+                            <div className="mb-6">
+                                <h3 className="text-lg font-bold mb-2" style={{ color: mode === 'dark' ? 'white' : '#1f2937' }}>
+                                    Product Description
+                                </h3>
+                                <p className="leading-relaxed text-base" style={{ color: mode === 'dark' ? '#d1d5db' : '#4b5563' }}>
+                                    {products.description}
+                                </p>
+                            </div>
 
-                            <div className="flex items-center gap-3">
-                                <span className="title-font font-medium text-2xl text-gray-900">
-                                ₹{products.price}
-                                </span>
-                                <button  
-                                    onClick={()=>addCart(products)} 
-                                    className="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded transition-all duration-300 hover:scale-105"
-                                >
-                                    Add To Cart
-                                </button>
-                                <button 
-                                    onClick={toggleWishlist}
-                                    className={`rounded-full w-10 h-10 p-0 border-0 inline-flex items-center justify-center ml-2 transition-all duration-300 hover:scale-110 ${
-                                        isInWishlist ? 'bg-pink-500 text-white' : 'bg-gray-200 text-gray-500 hover:bg-pink-100'
-                                    }`}
-                                >
-                                    <FaHeart className="w-5 h-5" />
-                                </button>
-                                <button className="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 ml-2 hover:bg-gray-300 transition-all duration-300">
-                                    <svg
-                                        fill="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        className="w-5 h-5"
-                                        viewBox="0 0 24 24"
+                            {/* Price and Actions */}
+                            <div className="border-t-2 pt-6" style={{ borderColor: mode === 'dark' ? 'rgb(75 85 99)' : '#e5e7eb' }}>
+                                <div className="flex items-center justify-between mb-6">
+                                    <div>
+                                        <p className="text-sm mb-1" style={{ color: mode === 'dark' ? '#9ca3af' : '#6b7280' }}>
+                                            Price
+                                        </p>
+                                        <span className="text-4xl font-bold text-pink-600">
+                                            ₹{products.price}
+                                        </span>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm mb-1" style={{ color: mode === 'dark' ? '#9ca3af' : '#6b7280' }}>
+                                            Availability
+                                        </p>
+                                        <span className="text-lg font-semibold text-green-600">
+                                            In Stock
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex gap-3">
+                                    <button  
+                                        onClick={() => addCart(products)} 
+                                        className="flex-1 py-4 px-6 rounded-xl font-bold text-base flex items-center justify-center gap-3 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl active:scale-95 text-white"
+                                        style={{
+                                            background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+                                        }}
                                     >
-                                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-                                    </svg>
-                                </button>
+                                        <FaShoppingCart size={20} />
+                                        Add To Cart
+                                    </button>
+                                    
+                                    <button 
+                                        onClick={toggleWishlist}
+                                        className={`py-4 px-6 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 ${
+                                            isInWishlist 
+                                                ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/50' 
+                                                : 'border-2 border-pink-500 hover:bg-pink-500'
+                                        }`}
+                                        style={{
+                                            color: isInWishlist ? 'white' : '#ec4899',
+                                            borderColor: '#ec4899'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (!isInWishlist) {
+                                                e.target.style.color = 'white';
+                                                e.target.style.backgroundColor = '#ec4899';
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (!isInWishlist) {
+                                                e.target.style.color = '#ec4899';
+                                                e.target.style.backgroundColor = 'transparent';
+                                            }
+                                        }}
+                                    >
+                                        <FaHeart size={20} className={isInWishlist ? 'animate-pulse' : ''} />
+                                        {isInWishlist ? 'In Wishlist' : 'Add to Wishlist'}
+                                    </button>
+                                </div>
+
+                                {/* Additional Info */}
+                                <div className="grid grid-cols-2 gap-4 mt-6 p-4 rounded-xl" style={{
+                                    backgroundColor: mode === 'dark' ? 'rgba(236, 72, 153, 0.1)' : 'rgba(236, 72, 153, 0.05)'
+                                }}>
+                                    <div className="flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span className="text-sm font-medium" style={{ color: mode === 'dark' ? '#d1d5db' : '#4b5563' }}>
+                                            Free Shipping
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span className="text-sm font-medium" style={{ color: mode === 'dark' ? '#d1d5db' : '#4b5563' }}>
+                                            Quality Guaranteed
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                        </svg>
+                                        <span className="text-sm font-medium" style={{ color: mode === 'dark' ? '#d1d5db' : '#4b5563' }}>
+                                            Secure Payment
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        <span className="text-sm font-medium" style={{ color: mode === 'dark' ? '#d1d5db' : '#4b5563' }}>
+                                            Easy Returns
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>}

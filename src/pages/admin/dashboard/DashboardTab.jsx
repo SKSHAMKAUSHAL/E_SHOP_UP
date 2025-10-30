@@ -172,57 +172,59 @@ function DashboardTab() {
                                 </div>
 
                                 {/* Results count */}
-                                <div className="mb-4 text-sm" style={{ color: mode === 'dark' ? '#9ca3af' : '#6b7280' }}>
+                                <div className="mb-4 text-xs sm:text-sm" style={{ color: mode === 'dark' ? '#9ca3af' : '#6b7280' }}>
                                     Showing {filteredProducts.length} of {product.length} products
                                 </div>
-                                <div className="shadow-2xl rounded-xl overflow-hidden border-2 transition-all duration-300 hover:shadow-purple-500/20" 
-                                    style={{ 
-                                        borderColor: mode === 'dark' ? 'rgb(147 51 234)' : 'rgb(216 180 254)',
-                                        background: mode === 'dark' ? 'rgb(31 41 55)' : 'white'
-                                    }}>
-                                    <table className="w-full text-sm text-left">
-                                        <thead className="uppercase border-b-2 relative overflow-hidden"
+                                <div className="overflow-x-auto -mx-4 sm:mx-0">
+                                    <div className="inline-block min-w-full align-middle px-4 sm:px-0">
+                                        <div className="shadow-2xl rounded-xl overflow-hidden border-2 transition-all duration-300 hover:shadow-purple-500/20" 
                                             style={{ 
-                                                background: mode === 'dark' 
-                                                    ? 'linear-gradient(135deg, rgb(88 28 135) 0%, rgb(147 51 234) 100%)'
-                                                    : 'linear-gradient(135deg, rgb(243 232 255) 0%, rgb(251 207 232) 100%)',
-                                                borderColor: mode === 'dark' ? 'rgb(192 132 252)' : 'rgb(168 85 247)',
+                                                borderColor: mode === 'dark' ? 'rgb(147 51 234)' : 'rgb(216 180 254)',
+                                                background: mode === 'dark' ? 'rgb(31 41 55)' : 'white'
                                             }}>
-                                            <tr>
-                                                <th scope="col" className="px-6 py-5 font-bold text-sm tracking-wide relative group">
-                                                    <span style={{ color: mode === 'dark' ? '#fae8ff' : '#581c87' }}>🔢 S.No</span>
-                                                    <div className="absolute bottom-0 left-0 w-0 h-1 bg-purple-400 group-hover:w-full transition-all duration-300"></div>
-                                                </th>
-                                                <th scope="col" className="px-6 py-5 font-bold text-sm tracking-wide relative group">
-                                                    <span style={{ color: mode === 'dark' ? '#fae8ff' : '#581c87' }}>📷 Image</span>
-                                                    <div className="absolute bottom-0 left-0 w-0 h-1 bg-purple-400 group-hover:w-full transition-all duration-300"></div>
-                                                </th>
-                                                <th scope="col" className="px-6 py-5 font-bold text-sm tracking-wide relative group">
-                                                    <span style={{ color: mode === 'dark' ? '#fae8ff' : '#581c87' }}>📦 Title</span>
-                                                    <div className="absolute bottom-0 left-0 w-0 h-1 bg-purple-400 group-hover:w-full transition-all duration-300"></div>
-                                                </th>
-                                                <th scope="col" className="px-6 py-5 font-bold text-sm tracking-wide relative group">
-                                                    <span style={{ color: mode === 'dark' ? '#fae8ff' : '#581c87' }}>💰 Price</span>
-                                                    <div className="absolute bottom-0 left-0 w-0 h-1 bg-purple-400 group-hover:w-full transition-all duration-300"></div>
-                                                </th>
-                                                <th scope="col" className="px-6 py-5 font-bold text-sm tracking-wide relative group">
-                                                    <span style={{ color: mode === 'dark' ? '#fae8ff' : '#581c87' }}>🏷️ Category</span>
-                                                    <div className="absolute bottom-0 left-0 w-0 h-1 bg-purple-400 group-hover:w-full transition-all duration-300"></div>
-                                                </th>
-                                                <th scope="col" className="px-6 py-5 font-bold text-sm tracking-wide relative group">
-                                                    <span style={{ color: mode === 'dark' ? '#fae8ff' : '#581c87' }}>📅 Date</span>
-                                                    <div className="absolute bottom-0 left-0 w-0 h-1 bg-purple-400 group-hover:w-full transition-all duration-300"></div>
-                                                </th>
-                                                <th scope="col" className="px-6 py-5 font-bold text-sm tracking-wide relative group">
-                                                    <span style={{ color: mode === 'dark' ? '#fae8ff' : '#581c87' }}>⚡ Action</span>
-                                                    <div className="absolute bottom-0 left-0 w-0 h-1 bg-purple-400 group-hover:w-full transition-all duration-300"></div>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {filteredProducts.length === 0 ? (
-                                                <tr>
-                                                    <td colSpan="7" className="px-6 py-12 text-center" 
+                                            <table className="min-w-full text-xs sm:text-sm text-left">
+                                                <thead className="uppercase border-b-2 relative overflow-hidden"
+                                                    style={{ 
+                                                        background: mode === 'dark' 
+                                                            ? 'linear-gradient(135deg, rgb(88 28 135) 0%, rgb(147 51 234) 100%)'
+                                                            : 'linear-gradient(135deg, rgb(243 232 255) 0%, rgb(251 207 232) 100%)',
+                                                        borderColor: mode === 'dark' ? 'rgb(192 132 252)' : 'rgb(168 85 247)',
+                                                    }}>
+                                                    <tr>
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-5 font-bold text-xs sm:text-sm tracking-wide relative group whitespace-nowrap">
+                                                            <span style={{ color: mode === 'dark' ? '#fae8ff' : '#581c87' }}>🔢 S.No</span>
+                                                            <div className="absolute bottom-0 left-0 w-0 h-1 bg-purple-400 group-hover:w-full transition-all duration-300"></div>
+                                                        </th>
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-5 font-bold text-xs sm:text-sm tracking-wide relative group whitespace-nowrap">
+                                                            <span style={{ color: mode === 'dark' ? '#fae8ff' : '#581c87' }}>📷 Image</span>
+                                                            <div className="absolute bottom-0 left-0 w-0 h-1 bg-purple-400 group-hover:w-full transition-all duration-300"></div>
+                                                        </th>
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-5 font-bold text-xs sm:text-sm tracking-wide relative group whitespace-nowrap">
+                                                            <span style={{ color: mode === 'dark' ? '#fae8ff' : '#581c87' }}>📦 Title</span>
+                                                            <div className="absolute bottom-0 left-0 w-0 h-1 bg-purple-400 group-hover:w-full transition-all duration-300"></div>
+                                                        </th>
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-5 font-bold text-xs sm:text-sm tracking-wide relative group whitespace-nowrap">
+                                                            <span style={{ color: mode === 'dark' ? '#fae8ff' : '#581c87' }}>💰 Price</span>
+                                                            <div className="absolute bottom-0 left-0 w-0 h-1 bg-purple-400 group-hover:w-full transition-all duration-300"></div>
+                                                        </th>
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-5 font-bold text-xs sm:text-sm tracking-wide relative group whitespace-nowrap">
+                                                            <span style={{ color: mode === 'dark' ? '#fae8ff' : '#581c87' }}>🏷️ Category</span>
+                                                            <div className="absolute bottom-0 left-0 w-0 h-1 bg-purple-400 group-hover:w-full transition-all duration-300"></div>
+                                                        </th>
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-5 font-bold text-xs sm:text-sm tracking-wide relative group whitespace-nowrap">
+                                                            <span style={{ color: mode === 'dark' ? '#fae8ff' : '#581c87' }}>📅 Date</span>
+                                                            <div className="absolute bottom-0 left-0 w-0 h-1 bg-purple-400 group-hover:w-full transition-all duration-300"></div>
+                                                        </th>
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-5 font-bold text-xs sm:text-sm tracking-wide relative group whitespace-nowrap">
+                                                            <span style={{ color: mode === 'dark' ? '#fae8ff' : '#581c87' }}>⚡ Action</span>
+                                                            <div className="absolute bottom-0 left-0 w-0 h-1 bg-purple-400 group-hover:w-full transition-all duration-300"></div>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {filteredProducts.length === 0 ? (
+                                                        <tr>
+                                                            <td colSpan="7" className="px-3 sm:px-6 py-8 sm:py-12 text-center" 
                                                         style={{ 
                                                             backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : 'white',
                                                             color: mode === 'dark' ? '#9ca3af' : '#9ca3af'
@@ -322,12 +324,14 @@ function DashboardTab() {
                                     </table>
                                 </div>
                             </div>
-                        </TabPanel>
+                        </div>
+                    </div>
+                    </TabPanel>
 
                         <TabPanel>
                             {/* <Order order={order} setOrder={setOrder} setLoading={setLoading} /> */}
-                            <div className="relative overflow-x-auto mb-16">
-                                <h1 className='text-center mb-6 text-3xl font-bold' style={{ color: mode === 'dark' ? 'white' : '#1f2937' }}>
+                            <div className="px-4 md:px-0 mb-16">
+                                <h1 className='text-center mb-6 text-2xl sm:text-3xl font-bold' style={{ color: mode === 'dark' ? 'white' : '#1f2937' }}>
                                     Order Management
                                 </h1>
 
@@ -336,10 +340,10 @@ function DashboardTab() {
                                     <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                     <input
                                         type="text"
-                                        placeholder="Search orders by payment ID, name, or email..."
+                                        placeholder="Search orders..."
                                         value={orderSearch}
                                         onChange={(e) => setOrderSearch(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 focus:border-pink-500 outline-none transition-all"
+                                        className="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg border-2 border-gray-300 focus:border-pink-500 outline-none transition-all text-sm sm:text-base"
                                         style={{
                                             backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : 'white',
                                             color: mode === 'dark' ? 'white' : '',
@@ -349,7 +353,7 @@ function DashboardTab() {
                                 </div>
 
                                 {/* Results count */}
-                                <div className="mb-4 text-sm" style={{ color: mode === 'dark' ? '#9ca3af' : '#6b7280' }}>
+                                <div className="mb-4 text-xs sm:text-sm" style={{ color: mode === 'dark' ? '#9ca3af' : '#6b7280' }}>
                                     Showing {filteredOrders.length} of {order.length} orders
                                 </div>
 
@@ -373,13 +377,13 @@ function DashboardTab() {
                                     </div>
                                 ) : (
                                     filteredOrders.map((allorder, orderIndex) => (
-                                        <div key={allorder.id || orderIndex} className="mb-8 shadow-2xl rounded-xl overflow-hidden border-2 transition-all duration-300 hover:shadow-pink-500/20 animate-fade-in"
+                                        <div key={allorder.id || orderIndex} className="mb-6 sm:mb-8 shadow-2xl rounded-xl overflow-hidden border-2 transition-all duration-300 hover:shadow-pink-500/20 animate-fade-in"
                                             style={{ 
                                                 borderColor: mode === 'dark' ? 'rgb(236 72 153)' : 'rgb(251 207 232)',
                                                 background: mode === 'dark' ? 'rgb(31 41 55)' : 'white'
                                             }}>
                                             {/* Order Badge */}
-                                            <div className="px-6 py-3 border-b-2 flex items-center justify-between"
+                                            <div className="px-4 sm:px-6 py-3 border-b-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2"
                                                 style={{
                                                     background: mode === 'dark' 
                                                         ? 'linear-gradient(135deg, rgb(157 23 77) 0%, rgb(190 24 93) 100%)'
@@ -387,9 +391,9 @@ function DashboardTab() {
                                                     borderColor: mode === 'dark' ? 'rgb(236 72 153)' : 'rgb(236 72 153)'
                                                 }}>
                                                 <div className="flex items-center gap-3">
-                                                    <span className="text-2xl">📦</span>
+                                                    <span className="text-xl sm:text-2xl">📦</span>
                                                     <div>
-                                                        <h3 className="font-bold text-sm" style={{ color: mode === 'dark' ? '#fce7f3' : '#831843' }}>
+                                                        <h3 className="font-bold text-xs sm:text-sm" style={{ color: mode === 'dark' ? '#fce7f3' : '#831843' }}>
                                                             Order #{orderIndex + 1}
                                                         </h3>
                                                         <p className="text-xs" style={{ color: mode === 'dark' ? '#fbcfe8' : '#9f1239' }}>
@@ -397,7 +401,7 @@ function DashboardTab() {
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <div className="px-3 py-1 rounded-full text-xs font-bold"
+                                                <div className="px-3 py-1 rounded-full text-xs font-bold self-start sm:self-auto"
                                                     style={{
                                                         background: mode === 'dark' ? 'rgb(190 24 93)' : 'rgb(236 72 153)',
                                                         color: 'white'
@@ -406,7 +410,9 @@ function DashboardTab() {
                                                 </div>
                                             </div>
                                             
-                                            <table className="w-full text-sm text-left">
+                                            <div className="overflow-x-auto -mx-4 sm:mx-0">
+                                                <div className="inline-block min-w-full align-middle px-4 sm:px-0">
+                                            <table className="min-w-full text-xs sm:text-sm text-left">
                                                 <thead className="uppercase border-b-2 relative overflow-hidden"
                                                     style={{ 
                                                         background: mode === 'dark' 
@@ -415,47 +421,47 @@ function DashboardTab() {
                                                         borderColor: mode === 'dark' ? 'rgb(244 114 182)' : 'rgb(236 72 153)'
                                                     }}>
                                                     <tr>
-                                                        <th scope="col" className="px-6 py-4 font-bold text-xs tracking-wide relative group">
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-4 font-bold text-xs tracking-wide relative group whitespace-nowrap">
                                                             <span style={{ color: mode === 'dark' ? '#fce7f3' : '#831843' }}>💳 Payment ID</span>
                                                             <div className="absolute bottom-0 left-0 w-0 h-1 bg-pink-400 group-hover:w-full transition-all duration-300"></div>
                                                         </th>
-                                                        <th scope="col" className="px-6 py-4 font-bold text-xs tracking-wide relative group">
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-4 font-bold text-xs tracking-wide relative group whitespace-nowrap">
                                                             <span style={{ color: mode === 'dark' ? '#fce7f3' : '#831843' }}>📷 Image</span>
                                                             <div className="absolute bottom-0 left-0 w-0 h-1 bg-pink-400 group-hover:w-full transition-all duration-300"></div>
                                                         </th>
-                                                        <th scope="col" className="px-6 py-4 font-bold text-xs tracking-wide relative group">
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-4 font-bold text-xs tracking-wide relative group whitespace-nowrap">
                                                             <span style={{ color: mode === 'dark' ? '#fce7f3' : '#831843' }}>📦 Title</span>
                                                             <div className="absolute bottom-0 left-0 w-0 h-1 bg-pink-400 group-hover:w-full transition-all duration-300"></div>
                                                         </th>
-                                                        <th scope="col" className="px-6 py-4 font-bold text-xs tracking-wide relative group">
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-4 font-bold text-xs tracking-wide relative group whitespace-nowrap">
                                                             <span style={{ color: mode === 'dark' ? '#fce7f3' : '#831843' }}>💰 Price</span>
                                                             <div className="absolute bottom-0 left-0 w-0 h-1 bg-pink-400 group-hover:w-full transition-all duration-300"></div>
                                                         </th>
-                                                        <th scope="col" className="px-6 py-4 font-bold text-xs tracking-wide relative group">
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-4 font-bold text-xs tracking-wide relative group whitespace-nowrap">
                                                             <span style={{ color: mode === 'dark' ? '#fce7f3' : '#831843' }}>🏷️ Category</span>
                                                             <div className="absolute bottom-0 left-0 w-0 h-1 bg-pink-400 group-hover:w-full transition-all duration-300"></div>
                                                         </th>
-                                                        <th scope="col" className="px-6 py-4 font-bold text-xs tracking-wide relative group">
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-4 font-bold text-xs tracking-wide relative group whitespace-nowrap">
                                                             <span style={{ color: mode === 'dark' ? '#fce7f3' : '#831843' }}>👤 Name</span>
                                                             <div className="absolute bottom-0 left-0 w-0 h-1 bg-pink-400 group-hover:w-full transition-all duration-300"></div>
                                                         </th>
-                                                        <th scope="col" className="px-6 py-4 font-bold text-xs tracking-wide relative group">
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-4 font-bold text-xs tracking-wide relative group whitespace-nowrap">
                                                             <span style={{ color: mode === 'dark' ? '#fce7f3' : '#831843' }}>🏠 Address</span>
                                                             <div className="absolute bottom-0 left-0 w-0 h-1 bg-pink-400 group-hover:w-full transition-all duration-300"></div>
                                                         </th>
-                                                        <th scope="col" className="px-6 py-4 font-bold text-xs tracking-wide relative group">
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-4 font-bold text-xs tracking-wide relative group whitespace-nowrap">
                                                             <span style={{ color: mode === 'dark' ? '#fce7f3' : '#831843' }}>📍 Pincode</span>
                                                             <div className="absolute bottom-0 left-0 w-0 h-1 bg-pink-400 group-hover:w-full transition-all duration-300"></div>
                                                         </th>
-                                                        <th scope="col" className="px-6 py-4 font-bold text-xs tracking-wide relative group">
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-4 font-bold text-xs tracking-wide relative group whitespace-nowrap">
                                                             <span style={{ color: mode === 'dark' ? '#fce7f3' : '#831843' }}>📞 Phone</span>
                                                             <div className="absolute bottom-0 left-0 w-0 h-1 bg-pink-400 group-hover:w-full transition-all duration-300"></div>
                                                         </th>
-                                                        <th scope="col" className="px-6 py-4 font-bold text-xs tracking-wide relative group">
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-4 font-bold text-xs tracking-wide relative group whitespace-nowrap">
                                                             <span style={{ color: mode === 'dark' ? '#fce7f3' : '#831843' }}>📧 Email</span>
                                                             <div className="absolute bottom-0 left-0 w-0 h-1 bg-pink-400 group-hover:w-full transition-all duration-300"></div>
                                                         </th>
-                                                        <th scope="col" className="px-6 py-4 font-bold text-xs tracking-wide relative group">
+                                                        <th scope="col" className="px-3 sm:px-6 py-3 sm:py-4 font-bold text-xs tracking-wide relative group whitespace-nowrap">
                                                             <span style={{ color: mode === 'dark' ? '#fce7f3' : '#831843' }}>📅 Date</span>
                                                             <div className="absolute bottom-0 left-0 w-0 h-1 bg-pink-400 group-hover:w-full transition-all duration-300"></div>
                                                         </th>
@@ -528,6 +534,8 @@ function DashboardTab() {
                                                     })}
                                                 </tbody>
                                             </table>
+                                                </div>
+                                            </div>
                                         </div>
                                     ))
                                 )}
@@ -536,8 +544,8 @@ function DashboardTab() {
 
                         <TabPanel>
                             {/* <User addressInfo={addressInfo} setAddressInfo={setAddressInfo} setLoading={setLoading} /> */}
-                            <div className="relative overflow-x-auto mb-10">
-                                <h1 className='text-center mb-6 text-3xl font-bold' style={{ color: mode === 'dark' ? 'white' : '#1f2937' }}>
+                            <div className="px-4 md:px-0 mb-10">
+                                <h1 className='text-center mb-6 text-2xl sm:text-3xl font-bold' style={{ color: mode === 'dark' ? 'white' : '#1f2937' }}>
                                     User Management
                                 </h1>
 
@@ -546,10 +554,10 @@ function DashboardTab() {
                                     <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                     <input
                                         type="text"
-                                        placeholder="Search users by name or email..."
+                                        placeholder="Search users..."
                                         value={userSearch}
                                         onChange={(e) => setUserSearch(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none transition-all"
+                                        className="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none transition-all text-sm sm:text-base"
                                         style={{
                                             backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : 'white',
                                             color: mode === 'dark' ? 'white' : '',
@@ -559,16 +567,18 @@ function DashboardTab() {
                                 </div>
 
                                 {/* Results count */}
-                                <div className="mb-4 text-sm" style={{ color: mode === 'dark' ? '#9ca3af' : '#6b7280' }}>
+                                <div className="mb-4 text-xs sm:text-sm" style={{ color: mode === 'dark' ? '#9ca3af' : '#6b7280' }}>
                                     Showing {filteredUsers.length} of {user.length} users
                                 </div>
 
+                                <div className="overflow-x-auto -mx-4 sm:mx-0">
+                                    <div className="inline-block min-w-full align-middle px-4 sm:px-0">
                                 <div className="shadow-2xl rounded-xl overflow-hidden border-2 transition-all duration-300 hover:shadow-green-500/20"
                                     style={{ 
                                         borderColor: mode === 'dark' ? 'rgb(34 197 94)' : 'rgb(187 247 208)',
                                         background: mode === 'dark' ? 'rgb(31 41 55)' : 'white'
                                     }}>
-                                    <table className="w-full text-sm text-left">
+                                    <table className="min-w-full text-xs sm:text-sm text-left">
                                         <thead className="uppercase border-b-2 relative overflow-hidden"
                                             style={{ 
                                                 background: mode === 'dark' 
@@ -577,19 +587,19 @@ function DashboardTab() {
                                                 borderColor: mode === 'dark' ? 'rgb(134 239 172)' : 'rgb(34 197 94)'
                                             }}>
                                             <tr>
-                                                <th scope="col" className="px-6 py-5 font-bold text-sm tracking-wide relative group">
+                                                <th scope="col" className="px-3 sm:px-6 py-3 sm:py-5 font-bold text-xs sm:text-sm tracking-wide relative group whitespace-nowrap">
                                                     <span style={{ color: mode === 'dark' ? '#dcfce7' : '#14532d' }}>🔢 S.No</span>
                                                     <div className="absolute bottom-0 left-0 w-0 h-1 bg-green-400 group-hover:w-full transition-all duration-300"></div>
                                                 </th>
-                                                <th scope="col" className="px-6 py-5 font-bold text-sm tracking-wide relative group">
+                                                <th scope="col" className="px-3 sm:px-6 py-3 sm:py-5 font-bold text-xs sm:text-sm tracking-wide relative group whitespace-nowrap">
                                                     <span style={{ color: mode === 'dark' ? '#dcfce7' : '#14532d' }}>👤 Name</span>
                                                     <div className="absolute bottom-0 left-0 w-0 h-1 bg-green-400 group-hover:w-full transition-all duration-300"></div>
                                                 </th>
-                                                <th scope="col" className="px-6 py-5 font-bold text-sm tracking-wide relative group">
+                                                <th scope="col" className="px-3 sm:px-6 py-3 sm:py-5 font-bold text-xs sm:text-sm tracking-wide relative group whitespace-nowrap">
                                                     <span style={{ color: mode === 'dark' ? '#dcfce7' : '#14532d' }}>📧 Email</span>
                                                     <div className="absolute bottom-0 left-0 w-0 h-1 bg-green-400 group-hover:w-full transition-all duration-300"></div>
                                                 </th>
-                                                <th scope="col" className="px-6 py-5 font-bold text-sm tracking-wide relative group">
+                                                <th scope="col" className="px-3 sm:px-6 py-3 sm:py-5 font-bold text-xs sm:text-sm tracking-wide relative group whitespace-nowrap">
                                                     <span style={{ color: mode === 'dark' ? '#dcfce7' : '#14532d' }}>🆔 User ID</span>
                                                     <div className="absolute bottom-0 left-0 w-0 h-1 bg-green-400 group-hover:w-full transition-all duration-300"></div>
                                                 </th>
@@ -598,7 +608,7 @@ function DashboardTab() {
                                         <tbody>
                                             {filteredUsers.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan="4" className="px-6 py-12 text-center"
+                                                    <td colSpan="4" className="px-3 sm:px-6 py-8 sm:py-12 text-center"
                                                         style={{ 
                                                             backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : 'white',
                                                             color: mode === 'dark' ? '#9ca3af' : '#9ca3af'
@@ -607,11 +617,11 @@ function DashboardTab() {
                                                             <FaUser size={60} 
                                                                 style={{ color: mode === 'dark' ? '#6b7280' : '#d1d5db' }}
                                                             />
-                                                            <p className="text-lg font-semibold"
+                                                            <p className="text-base sm:text-lg font-semibold"
                                                                 style={{ color: mode === 'dark' ? '#9ca3af' : '#6b7280' }}>
                                                                 No users found
                                                             </p>
-                                                            <p className="text-sm"
+                                                            <p className="text-xs sm:text-sm"
                                                                 style={{ color: mode === 'dark' ? '#6b7280' : '#9ca3af' }}>
                                                                 Try adjusting your search
                                                             </p>
@@ -659,6 +669,8 @@ function DashboardTab() {
                                             )}
                                         </tbody>
                                     </table>
+                                </div>
+                                    </div>
                                 </div>
                             </div>
                         </TabPanel>

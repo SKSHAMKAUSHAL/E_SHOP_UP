@@ -188,10 +188,10 @@ function Cart() {
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-4">
             <div>
-              <h1 className="text-3xl font-bold">Shopping Cart</h1>
-              <p className="text-gray-500 mt-1">{totalItems} {totalItems === 1 ? 'item' : 'items'} in your cart</p>
+              <h1 className="text-2xl sm:text-3xl font-bold">Shopping Cart</h1>
+              <p className="text-sm sm:text-base text-gray-500 mt-1">{totalItems} {totalItems === 1 ? 'item' : 'items'} in your cart</p>
             </div>
             <button
               onClick={() => {
@@ -200,44 +200,44 @@ function Cart() {
                   toast.info('Cart cleared');
                 }
               }}
-              className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+              className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors self-start sm:self-auto"
             >
               Clear Cart
             </button>
           </div>
 
-          <div className="lg:grid lg:grid-cols-12 lg:gap-x-8">
+          <div className="flex flex-col lg:grid lg:grid-cols-12 lg:gap-x-8 gap-y-6">
             {/* Left - Cart Items */}
             <div className="lg:col-span-7 xl:col-span-8">
               <div className="space-y-4">
                 {cartItems.map((item, index) => (
                   <div
                     key={index}
-                    className="rounded-xl border bg-white p-6 shadow-sm hover:shadow-md transition-all duration-300"
+                    className="rounded-xl border bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-all duration-300"
                     style={{
                       backgroundColor: mode === 'dark' ? '#202123' : '',
                       color: mode === 'dark' ? 'white' : '',
                       borderColor: mode === 'dark' ? '#374151' : '',
                     }}
                   >
-                    <div className="flex flex-col sm:flex-row gap-6">
+                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                       {/* Image */}
-                      <div className="flex-shrink-0">
+                      <div className="flex-shrink-0 mx-auto sm:mx-0">
                         <img
                           src={item.imageUrl}
                           alt={item.title}
-                          className="h-32 w-32 rounded-lg object-cover"
+                          className="h-24 w-24 sm:h-32 sm:w-32 rounded-lg object-cover"
                         />
                       </div>
 
                       {/* Details */}
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
-                          <div className="flex justify-between">
-                            <h2 className="text-lg font-semibold mb-2">{item.title}</h2>
+                          <div className="flex justify-between gap-2">
+                            <h2 className="text-base sm:text-lg font-semibold mb-2 pr-2">{item.title}</h2>
                             <button
                               onClick={() => deleteCart(item)}
-                              className="text-gray-400 hover:text-red-500 transition-colors p-2"
+                              className="text-gray-400 hover:text-red-500 transition-colors p-2 flex-shrink-0"
                               aria-label="Remove item"
                             >
                               <svg
@@ -256,17 +256,17 @@ function Cart() {
                               </svg>
                             </button>
                           </div>
-                          <p className="text-sm text-gray-500 line-clamp-2 mb-3">{item.description}</p>
+                          <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mb-3">{item.description}</p>
                         </div>
 
                         {/* Price and Quantity */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+                          <div className="flex items-center space-x-4 w-full sm:w-auto">
                             {/* Quantity Controls */}
                             <div className="flex items-center border rounded-lg" style={{ borderColor: mode === 'dark' ? '#374151' : '#e5e7eb' }}>
                               <button
                                 onClick={() => handleDecrement(item)}
-                                className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-l-lg"
+                                className="px-2 sm:px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-l-lg touch-manipulation"
                                 disabled={(item.quantity || 1) <= 1}
                               >
                                 <svg
@@ -280,12 +280,12 @@ function Cart() {
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 12h-15" />
                                 </svg>
                               </button>
-                              <span className="px-4 py-2 font-medium min-w-[3rem] text-center">
+                              <span className="px-3 sm:px-4 py-2 font-medium min-w-[2.5rem] sm:min-w-[3rem] text-center text-sm sm:text-base">
                                 {item.quantity || 1}
                               </span>
                               <button
                                 onClick={() => handleIncrement(item)}
-                                className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-r-lg"
+                                className="px-2 sm:px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-r-lg touch-manipulation"
                               >
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -302,8 +302,8 @@ function Cart() {
                           </div>
 
                           {/* Price */}
-                          <div className="text-right">
-                            <p className="text-xl font-bold text-pink-600">
+                          <div className="text-right sm:text-right w-full sm:w-auto">
+                            <p className="text-lg sm:text-xl font-bold text-pink-600">
                               ₹{parseInt(item.price) * (item.quantity || 1)}
                             </p>
                             <p className="text-xs text-gray-500">₹{item.price} each</p>
@@ -334,16 +334,16 @@ function Cart() {
             </div>
 
             {/* Right - Order Summary */}
-            <div className="lg:col-span-5 xl:col-span-4 mt-8 lg:mt-0">
+            <div className="lg:col-span-5 xl:col-span-4 mt-6 lg:mt-0">
               <div
-                className="rounded-xl border bg-white p-6 shadow-sm sticky top-24"
+                className="rounded-xl border bg-white p-4 sm:p-6 shadow-sm lg:sticky lg:top-24"
                 style={{
                   backgroundColor: mode === 'dark' ? '#202123' : '',
                   color: mode === 'dark' ? 'white' : '',
                   borderColor: mode === 'dark' ? '#374151' : '',
                 }}
               >
-                <h2 className="text-xl font-bold mb-6">Order Summary</h2>
+                <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6">Order Summary</h2>
 
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-sm">

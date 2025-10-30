@@ -4,7 +4,7 @@ import myContext from '../../../context/data/myContext';
 import { getThemeColors, getThemeShadow } from '../../../utils/colorUtils';
 import Logo from '../../../components/logo/Logo';
 import adminBgImage from '../../../assets/nordwood-themes-Nv4QHkTVEaI-unsplash.jpg';
-import { FaCheckCircle, FaExclamationCircle, FaSpinner } from 'react-icons/fa';
+import { FaCheckCircle, FaExclamationCircle, FaSpinner, FaCloudUploadAlt, FaTimes, FaImage } from 'react-icons/fa';
 
 function AddProduct() {
     const context = useContext(myContext);
@@ -14,6 +14,60 @@ function AddProduct() {
     
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [imageUrls, setImageUrls] = useState(['']); // Array of image URLs
+    const [dragActive, setDragActive] = useState(false);
+
+    // Handle multiple image URL inputs
+    const handleImageUrlChange = (index, value) => {
+        const newUrls = [...imageUrls];
+        newUrls[index] = value;
+        setImageUrls(newUrls);
+        
+        // Update products with image array
+        const validUrls = newUrls.filter(url => url.trim() !== '');
+        setProducts({ 
+            ...products, 
+            imageUrl: validUrls[0] || '', // Keep first image as main
+            images: validUrls 
+        });
+        
+        if (errors.imageUrl) {
+            setErrors({ ...errors, imageUrl: '' });
+        }
+    };
+
+    // Add new image URL input
+    const addImageUrlInput = () => {
+        if (imageUrls.length < 5) { // Limit to 5 images
+            setImageUrls([...imageUrls, '']);
+        }
+    };
+
+    // Remove image URL input
+    const removeImageUrl = (index) => {
+        if (imageUrls.length > 1) {
+            const newUrls = imageUrls.filter((_, i) => i !== index);
+            setImageUrls(newUrls);
+            
+            const validUrls = newUrls.filter(url => url.trim() !== '');
+            setProducts({ 
+                ...products, 
+                imageUrl: validUrls[0] || '',
+                images: validUrls 
+            });
+        }
+    };
+
+    // Handle drag and drop
+    const handleDrag = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.type === "dragenter" || e.type === "dragover") {
+            setDragActive(true);
+        } else if (e.type === "dragleave") {
+            setDragActive(false);
+        }
+    };
 
     // Validate all fields
     const validateFields = () => {
@@ -29,10 +83,10 @@ function AddProduct() {
             newErrors.price = 'Please enter a valid price';
         }
         
-        if (!products.imageUrl || products.imageUrl.trim() === '') {
-            newErrors.imageUrl = 'Image URL is required';
-        } else if (!isValidUrl(products.imageUrl)) {
-            newErrors.imageUrl = 'Please enter a valid URL';
+        // Validate at least one image
+        const validUrls = imageUrls.filter(url => url.trim() !== '' && isValidUrl(url));
+        if (validUrls.length === 0) {
+            newErrors.imageUrl = 'At least one valid image URL is required';
         }
         
         if (!products.category || products.category.trim() === '') {
@@ -91,11 +145,13 @@ function AddProduct() {
             title: '',
             price: '',
             imageUrl: '',
+            images: [],
             category: '',
             description: '',
             time: null,
             date: null
         });
+        setImageUrls(['']);
         setErrors({});
     };
 
@@ -212,44 +268,154 @@ function AddProduct() {
                             )}
                         </div>
 
-                        {/* Product Image URL */}
+                        {/* Product Images - Multiple Upload */}
                         <div>
                             <label className="block text-sm font-medium mb-2" 
                                 style={{ color: colors.text.secondary }}>
-                                Image URL <span className="text-red-500">*</span>
+                                Product Images <span className="text-red-500">*</span>
+                                <span className="text-xs ml-2 font-normal">(Up to 5 images)</span>
                             </label>
-                            <input
-                                type="text"
-                                value={products.imageUrl || ''}
-                                onChange={(e) => handleInputChange('imageUrl', e.target.value)}
-                                name='imageUrl'
-                                className='px-4 py-3 w-full rounded-lg outline-none border-2 transition-all duration-300'
+                            
+                            {/* Drag and Drop Area */}
+                            <div
+                                onDragEnter={handleDrag}
+                                onDragLeave={handleDrag}
+                                onDragOver={handleDrag}
+                                className={`border-2 border-dashed rounded-lg p-6 mb-3 transition-all duration-300 ${
+                                    dragActive ? 'border-pink-500 bg-pink-50' : 'border-gray-300'
+                                }`}
                                 style={{
-                                    backgroundColor: colors.surface.main,
-                                    borderColor: errors.imageUrl ? '#ef4444' : colors.border.main,
-                                    color: colors.text.primary
+                                    backgroundColor: dragActive 
+                                        ? (mode === 'dark' ? 'rgba(236, 72, 153, 0.1)' : 'rgba(236, 72, 153, 0.05)')
+                                        : colors.surface.main,
+                                    borderColor: errors.imageUrl ? '#ef4444' : (dragActive ? '#ec4899' : colors.border.main)
                                 }}
-                                onFocus={(e) => e.target.style.borderColor = errors.imageUrl ? '#ef4444' : colors.border.focus}
-                                onBlur={(e) => e.target.style.borderColor = errors.imageUrl ? '#ef4444' : colors.border.main}
-                                placeholder='Enter image URL'
-                            />
+                            >
+                                <div className="text-center">
+                                    <FaCloudUploadAlt 
+                                        className="mx-auto mb-2" 
+                                        size={40} 
+                                        style={{ color: dragActive ? '#ec4899' : colors.text.secondary }} 
+                                    />
+                                    <p className="text-sm mb-1" style={{ color: colors.text.primary }}>
+                                        Drag and drop images here or paste URLs below
+                                    </p>
+                                    <p className="text-xs" style={{ color: colors.text.secondary }}>
+                                        Supports image URLs (JPG, PNG, WebP)
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Image URL Inputs */}
+                            <div className="space-y-3">
+                                {imageUrls.map((url, index) => (
+                                    <div key={index} className="flex gap-2">
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <FaImage style={{ color: colors.text.secondary }} />
+                                                <input
+                                                    type="text"
+                                                    value={url}
+                                                    onChange={(e) => handleImageUrlChange(index, e.target.value)}
+                                                    className='flex-1 px-4 py-2 rounded-lg outline-none border-2 transition-all duration-300 text-sm'
+                                                    style={{
+                                                        backgroundColor: colors.surface.main,
+                                                        borderColor: colors.border.main,
+                                                        color: colors.text.primary
+                                                    }}
+                                                    onFocus={(e) => e.target.style.borderColor = colors.border.focus}
+                                                    onBlur={(e) => e.target.style.borderColor = colors.border.main}
+                                                    placeholder={`Image URL ${index + 1}${index === 0 ? ' (Main Image)' : ''}`}
+                                                />
+                                            </div>
+                                            {/* Image Preview */}
+                                            {url && isValidUrl(url) && (
+                                                <div className="mt-2 rounded-lg overflow-hidden border-2" 
+                                                    style={{ 
+                                                        maxHeight: '120px',
+                                                        borderColor: colors.border.main 
+                                                    }}>
+                                                    <img 
+                                                        src={url} 
+                                                        alt={`Preview ${index + 1}`} 
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                        }}
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                        {imageUrls.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImageUrl(index)}
+                                                className="px-3 py-2 rounded-lg text-red-500 hover:bg-red-50 transition-all duration-300"
+                                                style={{
+                                                    backgroundColor: mode === 'dark' ? 'rgba(239, 68, 68, 0.1)' : 'transparent'
+                                                }}
+                                            >
+                                                <FaTimes />
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Add More Button */}
+                            {imageUrls.length < 5 && (
+                                <button
+                                    type="button"
+                                    onClick={addImageUrlInput}
+                                    className="mt-3 w-full py-2 rounded-lg border-2 border-dashed font-medium text-sm transition-all duration-300 hover:border-pink-500 hover:bg-pink-50"
+                                    style={{
+                                        color: colors.text.secondary,
+                                        borderColor: colors.border.main,
+                                        backgroundColor: mode === 'dark' ? 'rgba(236, 72, 153, 0.05)' : 'transparent'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.target.style.borderColor = '#ec4899';
+                                        e.target.style.color = '#ec4899';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.target.style.borderColor = colors.border.main;
+                                        e.target.style.color = colors.text.secondary;
+                                    }}
+                                >
+                                    + Add Another Image ({imageUrls.length}/5)
+                                </button>
+                            )}
+
                             {errors.imageUrl && (
-                                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                                <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
                                     <FaExclamationCircle className="text-xs" />
                                     {errors.imageUrl}
                                 </p>
                             )}
-                            {products.imageUrl && !errors.imageUrl && (
-                                <div className="mt-2 rounded-lg overflow-hidden" style={{ maxHeight: '200px' }}>
-                                    <img 
-                                        src={products.imageUrl} 
-                                        alt="Preview" 
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            e.target.style.display = 'none';
-                                            setErrors({ ...errors, imageUrl: 'Invalid image URL' });
-                                        }}
-                                    />
+
+                            {/* Image Gallery Preview */}
+                            {imageUrls.filter(url => url && isValidUrl(url)).length > 1 && (
+                                <div className="mt-4 p-4 rounded-lg border-2" style={{ borderColor: colors.border.main }}>
+                                    <p className="text-sm font-medium mb-3" style={{ color: colors.text.primary }}>
+                                        Image Gallery Preview ({imageUrls.filter(url => url && isValidUrl(url)).length} images)
+                                    </p>
+                                    <div className="grid grid-cols-5 gap-2">
+                                        {imageUrls.filter(url => url && isValidUrl(url)).map((url, idx) => (
+                                            <div key={idx} className="relative group">
+                                                <img 
+                                                    src={url} 
+                                                    alt={`Gallery ${idx + 1}`}
+                                                    className="w-full h-20 object-cover rounded-lg border-2 transition-all duration-300 group-hover:scale-105"
+                                                    style={{ borderColor: idx === 0 ? '#ec4899' : colors.border.main }}
+                                                />
+                                                {idx === 0 && (
+                                                    <span className="absolute -top-2 -right-2 bg-pink-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+                                                        Main
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
                         </div>

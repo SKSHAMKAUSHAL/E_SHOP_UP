@@ -18,6 +18,53 @@ function ProductCard() {
     const userId = user?.user?.uid;
 
     const [hoveredIndex, setHoveredIndex] = useState(null);
+    const [currentImageIndex, setCurrentImageIndex] = useState({});
+    const [imageIntervals, setImageIntervals] = useState({});
+
+    // Get product images - handle both single and multiple images
+    const getProductImages = (item) => {
+        if (item.images && Array.isArray(item.images) && item.images.length > 0) {
+            return item.images;
+        }
+        return [item.imageUrl];
+    };
+
+    // Start auto slideshow on hover
+    const startImageSlideshow = (productId, images) => {
+        if (images.length <= 1) return;
+        
+        const interval = setInterval(() => {
+            setCurrentImageIndex(prev => ({
+                ...prev,
+                [productId]: ((prev[productId] || 0) + 1) % images.length
+            }));
+        }, 2000); // Change image every 2 seconds
+        
+        setImageIntervals(prev => ({ ...prev, [productId]: interval }));
+    };
+
+    // Stop slideshow when hover ends
+    const stopImageSlideshow = (productId) => {
+        if (imageIntervals[productId]) {
+            clearInterval(imageIntervals[productId]);
+            setImageIntervals(prev => {
+                const newIntervals = { ...prev };
+                delete newIntervals[productId];
+                return newIntervals;
+            });
+        }
+        setCurrentImageIndex(prev => ({
+            ...prev,
+            [productId]: 0
+        }));
+    };
+
+    // Cleanup intervals on unmount
+    useEffect(() => {
+        return () => {
+            Object.values(imageIntervals).forEach(interval => clearInterval(interval));
+        };
+    }, [imageIntervals]);
 
     // Load wishlist on component mount
     useEffect(() => {
@@ -80,16 +127,26 @@ function ProductCard() {
                     {product.filter((obj)=> obj.title.toLowerCase().includes(searchkey))
                      .filter((obj) => obj.category.toLowerCase().includes(filterType))
                      .filter((obj) => obj.price.includes(filterPrice)).slice(0,8).map((item, index) => {
-                        const { title, price, imageUrl, id, category } = item;
+                        const { title, price, id, category } = item;
                         const isInWishlist = wishlist.some(wishItem => wishItem.productId === id);
+                        const productImages = getProductImages(item);
+                        const currentImg = currentImageIndex[id] || 0;
                         
                         return (
                             <div 
                                 key={index} 
                                 className="p-4 md:w-1/4 drop-shadow-lg animate-fade-in"
                                 style={{ animationDelay: `${index * 0.1}s` }}
-                                onMouseEnter={() => setHoveredIndex(index)}
-                                onMouseLeave={() => setHoveredIndex(null)}
+                                onMouseEnter={() => {
+                                    setHoveredIndex(index);
+                                    if (productImages.length > 1) {
+                                        startImageSlideshow(id, productImages);
+                                    }
+                                }}
+                                onMouseLeave={() => {
+                                    setHoveredIndex(null);
+                                    stopImageSlideshow(id);
+                                }}
                             >
                                 <div 
                                     className="h-full border-2 rounded-2xl overflow-hidden group relative transition-all duration-500 hover:shadow-2xl hover:-translate-y-2" 
@@ -104,16 +161,58 @@ function ProductCard() {
                                             : ''
                                     }}
                                 >
-                                    {/* Image Container */}
+                                    {/* Image Container with Slideshow */}
                                     <div 
                                         onClick={()=> window.location.href = `/productinfo/${id}`} 
-                                        className="relative cursor-pointer overflow-hidden"
+                                        className="relative cursor-pointer overflow-hidden h-80"
                                     >
-                                        <img 
-                                            className="rounded-t-xl w-full h-80 object-cover p-2 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-2" 
-                                            src={imageUrl} 
-                                            alt={title} 
-                                        />
+                                        {/* Images with crossfade animation */}
+                                        {productImages.map((img, imgIdx) => (
+                                            <img 
+                                                key={imgIdx}
+                                                className={`absolute inset-0 w-full h-full object-cover p-2 transition-all duration-700 ${
+                                                    imgIdx === currentImg 
+                                                        ? 'opacity-100 scale-110' 
+                                                        : 'opacity-0 scale-100'
+                                                } group-hover:rotate-1`}
+                                                src={img} 
+                                                alt={`${title} - ${imgIdx + 1}`}
+                                                loading="lazy"
+                                            />
+                                        ))}
+                                        
+                                        {/* Image Counter Badge */}
+                                        {productImages.length > 1 && (
+                                            <div className="absolute top-4 left-4 bg-black bg-opacity-60 text-white px-2 py-1 rounded-full text-xs font-bold backdrop-blur-sm z-10">
+                                                {currentImg + 1}/{productImages.length}
+                                            </div>
+                                        )}
+
+                                        {/* Manual Navigation Dots */}
+                                        {productImages.length > 1 && (
+                                            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-1.5 z-10">
+                                                {productImages.map((_, dotIdx) => (
+                                                    <button
+                                                        key={dotIdx}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setCurrentImageIndex(prev => ({
+                                                                ...prev,
+                                                                [id]: dotIdx
+                                                            }));
+                                                        }}
+                                                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                                            dotIdx === currentImg 
+                                                                ? 'bg-pink-500 w-6' 
+                                                                : 'bg-white bg-opacity-50 hover:bg-opacity-100'
+                                                        }`}
+                                                        style={{
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                                                        }}
+                                                    />
+                                                ))}
+                                            </div>
+                                        )}
                                         
                                         {/* Overlay Actions */}
                                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center gap-3">
