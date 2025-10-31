@@ -29,8 +29,10 @@ function ProductInfo() {
     const getProductData = async () => {
         setLoading(true)
         try {
-            const productTemp = await getDoc(doc(fireDB, "products", params.id))
-            setProducts(productTemp.data());
+            const productSnap = await getDoc(doc(fireDB, "products", params.id))
+            const data = productSnap.data();
+            // Ensure id exists for wishlist/cart logic
+            setProducts({ id: productSnap.id || params.id, ...data });
             setLoading(false)
         } catch (error) {
             toast.error("Failed to load product")
@@ -41,7 +43,7 @@ function ProductInfo() {
 
     useEffect(() => {
         getProductData()
-
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
 
@@ -49,16 +51,52 @@ function ProductInfo() {
     const dispatch = useDispatch()
     const cartItems = useSelector((state) => state.cart)
 
+    const [selectedVariation, setSelectedVariation] = useState('');
+
+    // Helper to validate URL
+    const isValidUrl = (url) => {
+        if (!url || typeof url !== 'string') return false;
+        if (!/^https?:\/\//i.test(url)) return false; // restrict to http/https
+        try { new URL(url); return true; } catch { return false; }
+    };
+
+    // Sanitize product before adding to cart to avoid non-serializable values (e.g., Firestore Timestamp)
+    const sanitizeForCart = (p, selectedVariation) => {
+        const safe = { ...p };
+        // Remove or convert non-serializable values
+        if (safe.time && typeof safe.time === 'object') {
+            try {
+                // Prefer milliseconds if available, else drop
+                safe.time = Date.now();
+            } catch {
+                delete safe.time;
+            }
+        }
+        // Keep only necessary fields to keep cart lean
+        return {
+            id: safe.id,
+            title: safe.title,
+            price: safe.price,
+            imageUrl: Array.isArray(safe.images) && safe.images.length && isValidUrl(safe.images[0])
+                ? safe.images[0]
+                : (isValidUrl(safe.imageUrl) ? safe.imageUrl : ''),
+            description: safe.description,
+            selectedVariation: selectedVariation || ''
+        };
+    };
+
     // Load wishlist on component mount
     useEffect(() => {
         if (userId) {
             getWishlistData(userId);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userId]);
 
     // add to cart
     const addCart = (products) => {
-        dispatch(addToCart(products))
+        const payload = sanitizeForCart(products, selectedVariation);
+        dispatch(addToCart(payload))
         toast.success('add to cart');
     }
 
@@ -104,12 +142,19 @@ function ProductInfo() {
                                 borderColor: mode === 'dark' ? 'rgb(75 85 99)' : '#e5e7eb',
                                 backgroundColor: mode === 'dark' ? 'rgb(30, 41, 59)' : '#f8fafc'
                             }}>
-                                <img
-                                    alt={products.title}
-                                    className="w-full max-h-[500px] md:max-h-[600px] object-contain transition-transform duration-300 group-hover:scale-105"
-                                    src={productImages[selectedImageIndex]}
-                                    loading="lazy"
-                                />
+                                {isValidUrl(productImages[selectedImageIndex]) ? (
+                                    <img
+                                        alt={products.title}
+                                        className="w-full max-h-[500px] md:max-h-[600px] object-contain transition-transform duration-300 group-hover:scale-105"
+                                        src={productImages[selectedImageIndex]}
+                                        loading="lazy"
+                                        onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/600x600?text=No+Image'; }}
+                                    />
+                                ) : (
+                                    <div className="w-full h-[400px] md:h-[500px] flex items-center justify-center text-sm"
+                                        style={{ backgroundColor: mode === 'dark' ? 'rgb(30, 41, 59)' : '#f1f5f9' }}
+                                    >No image available</div>
+                                )}
                                 
                                 {/* Navigation Arrows */}
                                 {productImages.length > 1 && (
@@ -155,11 +200,18 @@ function ProductInfo() {
                                                 borderColor: idx === selectedImageIndex ? '#ec4899' : (mode === 'dark' ? 'rgb(75 85 99)' : '#e5e7eb')
                                             }}
                                         >
-                                            <img
-                                                src={img}
-                                                alt={`Thumbnail ${idx + 1}`}
-                                                className="w-full h-20 object-cover"
-                                            />
+                                            {isValidUrl(img) ? (
+                                                <img
+                                                    src={img}
+                                                    alt={`Thumbnail ${idx + 1}`}
+                                                    className="w-full h-20 object-cover"
+                                                    onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/80?text=No+Img'; }}
+                                                />
+                                            ) : (
+                                                <div className="w-full h-20 flex items-center justify-center text-xs"
+                                                    style={{ backgroundColor: mode === 'dark' ? 'rgb(30, 41, 59)' : '#f1f5f9' }}
+                                                >No Img</div>
+                                            )}
                                             {idx === selectedImageIndex && (
                                                 <div className="absolute inset-0 bg-pink-500 bg-opacity-20"></div>
                                             )}
@@ -219,6 +271,45 @@ function ProductInfo() {
                                 </p>
                             </div>
 
+                            {/* Variations / Abilities */}
+                            {(() => {
+                                const type = (products?.type || '').toLowerCase();
+                                const variations = Array.isArray(products?.variations) ? products.variations : [];
+                                if (!type || variations.length === 0) return null;
+
+                                let title = 'Available Options';
+                                if (type === 'clothes') title = 'Available Sizes';
+                                if (type === 'shoes') title = 'Available Shoe Sizes';
+                                if (type === 'liquid' || type === 'perfume' || type === 'perfume/liquid') title = 'Available Volumes';
+
+                                return (
+                                    <div className="mb-6">
+                                        <h3 className="text-lg font-bold mb-2" style={{ color: mode === 'dark' ? 'white' : '#1f2937' }}>
+                                            {title}
+                                        </h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            {variations.map((v) => {
+                                                const active = selectedVariation === v;
+                                                return (
+                                                    <button
+                                                        key={v}
+                                                        onClick={() => setSelectedVariation(v)}
+                                                        className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${active ? 'text-white' : ''}`}
+                                                        style={{
+                                                            backgroundColor: active ? '#ec4899' : (mode === 'dark' ? 'rgba(236,72,153,0.06)' : 'rgba(236,72,153,0.03)'),
+                                                            color: active ? '#ffffff' : (mode === 'dark' ? '#e5e7eb' : '#374151'),
+                                                            borderColor: active ? '#ec4899' : '#ec4899'
+                                                        }}
+                                                    >
+                                                        {v}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+
                             {/* Price and Actions */}
                             <div className="border-t-2 pt-6" style={{ borderColor: mode === 'dark' ? 'rgb(75 85 99)' : '#e5e7eb' }}>
                                 <div className="flex items-center justify-between mb-6">
@@ -243,7 +334,15 @@ function ProductInfo() {
                                 {/* Action Buttons */}
                                 <div className="flex gap-3">
                                     <button  
-                                        onClick={() => addCart(products)} 
+                                        onClick={() => {
+                                            // If product has variations, ensure one is selected
+                                            const hasVariations = Array.isArray(products?.variations) && products.variations.length > 0;
+                                            if (hasVariations && !selectedVariation) {
+                                                toast.error('Please select a variation before adding to cart');
+                                                return;
+                                            }
+                                            addCart({ ...products, selectedVariation });
+                                        }} 
                                         className="flex-1 py-4 px-6 rounded-xl font-bold text-base flex items-center justify-center gap-3 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl active:scale-95 text-white"
                                         style={{
                                             background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',

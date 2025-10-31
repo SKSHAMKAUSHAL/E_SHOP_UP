@@ -439,6 +439,11 @@ function Order() {
                                       <h4 className="font-bold text-lg mb-1" style={{ color: mode === 'dark' ? 'white' : '#1f2937' }}>
                                         {item.title}
                                       </h4>
+                                      {item.selectedVariation && (
+                                        <p className="text-sm mb-2 mt-1" style={{ color: mode === 'dark' ? '#9ca3af' : '#6b7280' }}>
+                                          {item.selectedVariation}
+                                        </p>
+                                      )}
                                       <p className="text-sm mb-2 line-clamp-2" style={{ color: mode === 'dark' ? '#9ca3af' : '#6b7280' }}>
                                         {item.description}
                                       </p>

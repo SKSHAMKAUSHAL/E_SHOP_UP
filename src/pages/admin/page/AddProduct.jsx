@@ -16,6 +16,9 @@ function AddProduct() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [imageUrls, setImageUrls] = useState(['']); // Array of image URLs
     const [dragActive, setDragActive] = useState(false);
+    const [customVariation, setCustomVariation] = useState('');
+    const [selectedRam, setSelectedRam] = useState('');
+    const [selectedStorage, setSelectedStorage] = useState('');
 
     // Handle multiple image URL inputs
     const handleImageUrlChange = (index, value) => {
@@ -98,6 +101,14 @@ function AddProduct() {
         } else if (products.description.trim().length < 10) {
             newErrors.description = 'Description should be at least 10 characters';
         }
+
+        // If a product type is chosen, at least one variation is recommended/required
+        if ((products.type || '').trim() !== '') {
+            const v = Array.isArray(products.variations) ? products.variations : [];
+            if (v.length === 0) {
+                newErrors.variations = 'Add at least one variation for the selected type';
+            }
+        }
         
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -105,6 +116,8 @@ function AddProduct() {
 
     // Check if URL is valid
     const isValidUrl = (string) => {
+        if (!string || typeof string !== 'string') return false;
+        if (!/^https?:\/\//i.test(string)) return false; // restrict to http/https
         try {
             new URL(string);
             return true;
@@ -160,6 +173,71 @@ function AddProduct() {
         setProducts({ ...products, [field]: value });
         if (errors[field]) {
             setErrors({ ...errors, [field]: '' });
+        }
+    };
+
+    // Helpers for variations by type
+    const getPresetsByType = (type) => {
+        switch ((type || '').toLowerCase()) {
+            case 'clothes':
+                return ['XS','S','M','L','XL','XXL','XXXL'];
+            case 'shoes':
+                return ['6','7','8','9','10','11','12'];
+            case 'liquid':
+            case 'perfume/liquid':
+            case 'perfume':
+                return ['50ml','100ml','200ml','500ml'];
+            default:
+                return [];
+        }
+    };
+
+    const setTypeAndResetVariations = (value) => {
+        // When changing type, reset variations for clarity
+        setProducts({ ...products, type: value, variations: [] });
+        if (errors.variations) {
+            setErrors({ ...errors, variations: '' });
+        }
+    };
+
+    const toggleVariation = (val) => {
+        const current = Array.isArray(products.variations) ? products.variations : [];
+        const exists = current.includes(val);
+        const next = exists ? current.filter(v => v !== val) : [...current, val];
+        setProducts({ ...products, variations: next });
+        if (errors.variations) {
+            setErrors({ ...errors, variations: '' });
+        }
+    };
+
+    const normalizedCustomValue = () => {
+        const t = (products.type || '').toLowerCase();
+        let val = customVariation.trim();
+        if (!val) return '';
+        if (t === 'clothes') {
+            return val.toUpperCase();
+        }
+        if (t === 'shoes') {
+            return val.replace(/[^0-9.]/g, '');
+        }
+        if (t === 'liquid' || t === 'perfume' || t === 'perfume/liquid') {
+            // keep only digits and optional decimal, then add ml
+            const num = val.replace(/[^0-9.]/g, '');
+            return num ? `${num}ml` : '';
+        }
+        return val;
+    };
+
+    const addCustomVariation = () => {
+        const val = normalizedCustomValue();
+        if (!val) return;
+        const current = Array.isArray(products.variations) ? products.variations : [];
+        if (!current.includes(val)) {
+            setProducts({ ...products, variations: [...current, val] });
+            setCustomVariation('');
+            if (errors.variations) {
+                setErrors({ ...errors, variations: '' });
+            }
         }
     };
 
@@ -440,14 +518,14 @@ function AddProduct() {
                                 onBlur={(e) => e.target.style.borderColor = errors.category ? '#ef4444' : colors.border.main}
                             >
                                 <option value="">Select a category</option>
-                                <option value="fashion">Fashion</option>
-                                <option value="electronics">Electronics</option>
-                                <option value="home">Home & Living</option>
-                                <option value="sports">Sports & Outdoors</option>
-                                <option value="books">Books & Media</option>
-                                <option value="beauty">Beauty & Personal Care</option>
-                                <option value="toys">Toys & Games</option>
-                                <option value="other">Other</option>
+                                <option value="Fashion">Fashion</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Home & Living">Home & Living</option>
+                                <option value="Sports & Outdoors">Sports & Outdoors</option>
+                                <option value="Books & Media">Books & Media</option>
+                                <option value="Beauty & Personal Care">Beauty & Personal Care</option>
+                                <option value="Toys & Games">Toys & Games</option>
+                                <option value="Other">Other</option>
                             </select>
                             {errors.category && (
                                 <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
@@ -456,6 +534,215 @@ function AddProduct() {
                                 </p>
                             )}
                         </div>
+
+                        {/* Product Type (drives variations) */}
+                        <div>
+                            <label className="block text-sm font-medium mb-2" 
+                                style={{ color: colors.text.secondary }}>
+                                Product Type (for variations)
+                            </label>
+                            <select
+                                value={products.type || ''}
+                                onChange={(e) => setTypeAndResetVariations(e.target.value)}
+                                name='type'
+                                className='px-4 py-3 w-full rounded-lg outline-none border-2 transition-all duration-300'
+                                style={{
+                                    backgroundColor: colors.surface.main,
+                                    borderColor: colors.border.main,
+                                    color: colors.text.primary
+                                }}
+                                onFocus={(e) => e.target.style.borderColor = colors.border.focus}
+                                onBlur={(e) => e.target.style.borderColor = colors.border.main}
+                            >
+                                <option value="">Not applicable</option>
+                                <option value="clothes">Clothes</option>
+                                <option value="shoes">Shoes</option>
+                                <option value="liquid">Perfume/Liquid</option>
+                                <option value="electronics">Electronics</option>
+                            </select>
+                        </div>
+
+                        {/* Variations Input (shown only when type selected) */}
+                        {(products.type || '').trim() !== '' && (
+                            <div>
+                                <label className="block text-sm font-medium mb-2" 
+                                    style={{ color: colors.text.secondary }}>
+                                    {products.type.toLowerCase() === 'clothes' && 'Available Sizes'}
+                                    {products.type.toLowerCase() === 'shoes' && 'Available Shoe Sizes'}
+                                    {(products.type.toLowerCase() === 'liquid' || products.type.toLowerCase() === 'perfume' || products.type.toLowerCase() === 'perfume/liquid') && 'Available Volumes'}
+                                </label>
+
+                                {/* Preset chips or specialized UI */}
+                                {products.type === 'electronics' ? (
+                                    <div className="space-y-3">
+                                        <div className="flex gap-2">
+                                            <select
+                                                value={selectedRam || ''}
+                                                onChange={(e) => setSelectedRam(e.target.value)}
+                                                className='px-3 py-2 rounded-lg outline-none border-2'
+                                                style={{ backgroundColor: colors.surface.main, borderColor: colors.border.main, color: colors.text.primary }}
+                                            >
+                                                <option value="">Select RAM</option>
+                                                <option value="4GB">4GB</option>
+                                                <option value="6GB">6GB</option>
+                                                <option value="8GB">8GB</option>
+                                                <option value="12GB">12GB</option>
+                                            </select>
+                                            <select
+                                                value={selectedStorage || ''}
+                                                onChange={(e) => setSelectedStorage(e.target.value)}
+                                                className='px-3 py-2 rounded-lg outline-none border-2'
+                                                style={{ backgroundColor: colors.surface.main, borderColor: colors.border.main, color: colors.text.primary }}
+                                            >
+                                                <option value="">Select Storage</option>
+                                                <option value="64GB">64GB</option>
+                                                <option value="128GB">128GB</option>
+                                                <option value="256GB">256GB</option>
+                                                <option value="512GB">512GB</option>
+                                            </select>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    if (!selectedRam || !selectedStorage) return;
+                                                    const combo = `${selectedRam} RAM / ${selectedStorage} Storage`;
+                                                    const current = Array.isArray(products.variations) ? products.variations : [];
+                                                    if (!current.includes(combo)) {
+                                                        setProducts({ ...products, variations: [...current, combo] });
+                                                        setSelectedRam(''); setSelectedStorage('');
+                                                    }
+                                                }}
+                                                className='px-4 py-2 rounded-lg font-semibold text-white'
+                                                style={{ backgroundColor: '#ec4899' }}
+                                            >
+                                                Add Spec
+                                            </button>
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-2">
+                                            {(products.variations || []).map((p) => {
+                                                const active = (products.variations || []).includes(p);
+                                                return (
+                                                    <button
+                                                        type="button"
+                                                        key={p}
+                                                        onClick={() => toggleVariation(p)}
+                                                        className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${active ? 'text-white' : ''}`}
+                                                        style={{
+                                                            backgroundColor: active ? '#ec4899' : colors.surface.main,
+                                                            color: active ? '#ffffff' : colors.text.primary,
+                                                            borderColor: active ? '#ec4899' : colors.border.main,
+                                                        }}
+                                                    >
+                                                        {p}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="flex flex-wrap gap-2 mb-3">
+                                            {getPresetsByType(products.type).map((p) => {
+                                                const active = (products.variations || []).includes(p);
+                                                return (
+                                                    <button
+                                                        type="button"
+                                                        key={p}
+                                                        onClick={() => toggleVariation(p)}
+                                                        className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${active ? 'text-white' : ''}`}
+                                                        style={{
+                                                            backgroundColor: active ? '#ec4899' : colors.surface.main,
+                                                            color: active ? '#ffffff' : colors.text.primary,
+                                                            borderColor: active ? '#ec4899' : colors.border.main,
+                                                            borderWidth: '2px'
+                                                        }}
+                                                    >
+                                                        {p}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Custom variation input */}
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={customVariation}
+                                                onChange={(e) => setCustomVariation(e.target.value)}
+                                                className='flex-1 px-4 py-2 rounded-lg outline-none border-2 transition-all duration-300 text-sm'
+                                                style={{
+                                                    backgroundColor: colors.surface.main,
+                                                    borderColor: colors.border.main,
+                                                    color: colors.text.primary
+                                                }}
+                                                onFocus={(e) => e.target.style.borderColor = colors.border.focus}
+                                                onBlur={(e) => e.target.style.borderColor = colors.border.main}
+                                                placeholder={
+                                                    products.type.toLowerCase() === 'clothes'
+                                                    ? 'Add custom size (e.g., 4XL)'
+                                                    : products.type.toLowerCase() === 'shoes'
+                                                    ? 'Add custom shoe size (e.g., 13)'
+                                                    : 'Add custom volume (e.g., 150ml)'
+                                                }
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={addCustomVariation}
+                                                className='px-4 py-2 rounded-lg font-semibold text-white'
+                                                style={{ backgroundColor: '#ec4899' }}
+                                            >
+                                                Add
+                                            </button>
+                                        </div>
+
+                                        {/* Selected variations display */}
+                                        {(Array.isArray(products.variations) && products.variations.length > 0) && (
+                                            <div className="mt-3 flex flex-wrap gap-2">
+                                                {products.variations.map((v) => (
+                                                    <span
+                                                        key={v}
+                                                        className='px-3 py-1.5 rounded-full text-sm border'
+                                                        style={{
+                                                            backgroundColor: mode === 'dark' ? 'rgba(236,72,153,0.12)' : 'rgba(236,72,153,0.08)',
+                                                            color: colors.text.primary,
+                                                            borderColor: '#ec4899'
+                                                        }}
+                                                    >
+                                                        {v}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+
+                                {/* Selected variations display */}
+                                {(Array.isArray(products.variations) && products.variations.length > 0) && (
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        {products.variations.map((v) => (
+                                            <span
+                                                key={v}
+                                                className='px-3 py-1.5 rounded-full text-sm border'
+                                                style={{
+                                                    backgroundColor: mode === 'dark' ? 'rgba(236,72,153,0.12)' : 'rgba(236,72,153,0.08)',
+                                                    color: colors.text.primary,
+                                                    borderColor: '#ec4899'
+                                                }}
+                                            >
+                                                {v}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {errors.variations && (
+                                    <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                                        <FaExclamationCircle className="text-xs" />
+                                        {errors.variations}
+                                    </p>
+                                )}
+                            </div>
+                        )}
 
                         {/* Product Description */}
                         <div>

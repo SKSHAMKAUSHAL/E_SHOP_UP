@@ -36,8 +36,11 @@ function MyState(props) {
     title: null,
     price: null,
     imageUrl: null,
+    images: [],
     category: null,
     description: null,
+    type: '', // e.g., 'clothes' | 'shoes' | 'liquid'
+    variations: [], // array of strings like ['S','M'] or ['50ml'] or ['7','8']
     time: Timestamp.now(),
     date: new Date().toLocaleString(
       "en-US",
@@ -54,6 +57,11 @@ function MyState(props) {
   const addProduct = async () => {
     if (products.title == null || products.price == null || products.imageUrl == null || products.category == null || products.description == null) {
       return toast.error('Please fill all fields')
+    }
+
+    // If type is selected, require at least one variation for better data quality
+    if (products.type && Array.isArray(products.variations) && products.variations.length === 0) {
+      return toast.error('Please add at least one variation for the selected product type')
     }
 
     // Check for duplicate products
@@ -84,8 +92,11 @@ function MyState(props) {
         title: null,
         price: null,
         imageUrl: null,
+        images: [],
         category: null,
         description: null,
+        type: '',
+        variations: [],
         time: Timestamp.now(),
         date: new Date().toLocaleString(
           "en-US",

@@ -224,9 +224,10 @@ function Cart() {
                       {/* Image */}
                       <div className="flex-shrink-0 mx-auto sm:mx-0">
                         <img
-                          src={item.imageUrl}
+                          src={item.imageUrl || 'https://via.placeholder.com/128?text=No+Image'}
                           alt={item.title}
                           className="h-24 w-24 sm:h-32 sm:w-32 rounded-lg object-cover"
+                          onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/128?text=No+Image'; }}
                         />
                       </div>
 
@@ -234,7 +235,14 @@ function Cart() {
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
                           <div className="flex justify-between gap-2">
-                            <h2 className="text-base sm:text-lg font-semibold mb-2 pr-2">{item.title}</h2>
+              <div className="flex flex-col">
+                <h2 className="text-base sm:text-lg font-semibold mb-2 pr-2">{item.title}</h2>
+                {item.selectedVariation && (
+                  <span className="text-xs px-2 py-0.5 rounded-full mt-1 font-medium" style={{ backgroundColor: mode === 'dark' ? 'rgba(236,72,153,0.12)' : 'rgba(236,72,153,0.08)', color: mode === 'dark' ? '#e5e7eb' : '#374151' }}>
+                    {item.selectedVariation}
+                  </span>
+                )}
+              </div>
                             <button
                               onClick={() => deleteCart(item)}
                               className="text-gray-400 hover:text-red-500 transition-colors p-2 flex-shrink-0"

@@ -21,12 +21,34 @@ function ProductCard() {
     const [currentImageIndex, setCurrentImageIndex] = useState({});
     const [imageIntervals, setImageIntervals] = useState({});
 
-    // Get product images - handle both single and multiple images
+    // Helpers
+    const isValidUrl = (url) => {
+        if (!url || typeof url !== 'string') return false;
+        if (!/^https?:\/\//i.test(url)) return false; // restrict to http/https
+        try { new URL(url); return true; } catch { return false; }
+    };
+
+    // Get product images - handle both single and multiple images and filter invalid
     const getProductImages = (item) => {
-        if (item.images && Array.isArray(item.images) && item.images.length > 0) {
-            return item.images;
+        const arr = (item.images && Array.isArray(item.images) && item.images.length > 0) ? item.images : [item.imageUrl];
+        const valid = arr.filter((u) => typeof u === 'string' && isValidUrl(u));
+        return valid.length ? valid : [];
+    };
+
+    // Keep cart state serializable; strip Firestore Timestamp and unneeded fields
+    const sanitizeForCart = (p) => {
+        const safe = { ...p };
+        if (safe.time && typeof safe.time === 'object') {
+            try { safe.time = Date.now(); } catch { delete safe.time; }
         }
-        return [item.imageUrl];
+        const images = getProductImages(safe);
+        return {
+            id: safe.id,
+            title: safe.title,
+            price: safe.price,
+            imageUrl: images[0] || (isValidUrl(safe.imageUrl) ? safe.imageUrl : ''),
+            description: safe.description,
+        };
     };
 
     // Start auto slideshow on hover
@@ -71,10 +93,12 @@ function ProductCard() {
         if (userId) {
             getWishlistData(userId);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userId]);
 
     const addCart = (product)=> {
-        dispatch(addToCart(product));
+        const payload = sanitizeForCart(product);
+        dispatch(addToCart(payload));
         toast.success('Added to cart successfully! 🛒');
     }
 
@@ -167,7 +191,7 @@ function ProductCard() {
                                         className="relative cursor-pointer overflow-hidden h-80"
                                     >
                                         {/* Images with crossfade animation */}
-                                        {productImages.map((img, imgIdx) => (
+                                        {(productImages.length ? productImages : ['https://via.placeholder.com/600x600?text=No+Image']).map((img, imgIdx) => (
                                             <img 
                                                 key={imgIdx}
                                                 className={`absolute inset-0 w-full h-full object-cover p-2 transition-all duration-700 ${
@@ -178,6 +202,7 @@ function ProductCard() {
                                                 src={img} 
                                                 alt={`${title} - ${imgIdx + 1}`}
                                                 loading="lazy"
+                                                onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/600x600?text=No+Image'; }}
                                             />
                                         ))}
                                         
